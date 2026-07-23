@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연애 스타일 테스트 | 웨이팅 놀이터</title>
+<meta name="description" content="직진 스윗형, 츤데레형, 무한신뢰형, 밀당고수형. 6가지 질문으로 알아보는 나의 연애 스타일 테스트. 연인과 함께 해보세요.">
+<link rel="canonical" href="https://example.com/psychology-test/love-style.html">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="../index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">홈</a>
+      <a href="../balance-game/index.html">밸런스게임</a>
+      <a href="index.html" class="active">심리테스트</a>
+      <a href="../talk-cards/index.html">대화카드</a>
+      <a href="../trivia/index.html">알쓸신잡</a>
+      <a href="../compatibility/index.html">궁합테스트</a>
+      <a href="../fortune/index.html">오늘의운세</a>
+      <a href="../games/index.html">미니게임</a>
+      <a href="../about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="breadcrumb"><a href="../index.html">홈</a> &gt; <a href="index.html">심리테스트</a> &gt; 연애 스타일</p>
+
+  <section class="hero" style="padding-top:24px;">
+    <span class="type-badge couple">💑 연인이랑</span>
+    <h1 style="margin-top:14px;">💘 연애 스타일 테스트</h1>
+    <p>6가지 질문으로 알아보는 나의 연애 스타일. 연인과 함께 결과를 비교해보세요!</p>
+  </section>
+
+  <div class="widget">
+    <div id="quiz-root"></div>
+  </div>
+
+  <div class="article">
+    <h2>어떤 유형이 있나요?</h2>
+    <ul>
+      <li><strong>직진 스윗형</strong> — 마음을 숨기지 않고 표현하는 솔직한 사랑꾼</li>
+      <li><strong>츤데레형</strong> — 겉으론 무뚝뚝해도 속은 누구보다 다정한 타입</li>
+      <li><strong>무한신뢰형</strong> — 잔잔하지만 흔들림 없는 믿음으로 사랑하는 타입</li>
+      <li><strong>밀당고수형</strong> — 적당한 긴장감으로 관계에 스릴을 더하는 타입</li>
+    </ul>
+    <p>결과는 재미로 즐기는 콘텐츠이며 실제 연애 심리와는 무관합니다. 연인과 함께 서로의 결과를 맞춰보며 대화를 나눠보세요.</p>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn secondary" href="index.html">다른 심리테스트 보기</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="../about.html">사이트 소개</a>
+      <a href="../privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script>
+  window.QUIZ_DATA = {
+    questions: [
+      { text: "연인에게 서운한 게 있으면?", options: [
+        { label: "바로 솔직하게 말한다", type: "X" },
+        { label: "혼자 삭히다가 나중에 툭 던진다", type: "Y" }
+      ]},
+      { text: "애정표현은?", options: [
+        { label: "사랑한다는 말을 자주 한다", type: "X" },
+        { label: "말보다는 챙겨주는 행동으로", type: "Z" }
+      ]},
+      { text: "데이트 신청은?", options: [
+        { label: "내가 먼저 적극적으로", type: "X" },
+        { label: "은근슬쩍 상대가 하게 유도", type: "W" }
+      ]},
+      { text: "다툰 후엔?", options: [
+        { label: "괜히 더 챙겨주며 화해한다", type: "Z" },
+        { label: "삐진 티 내며 투닥거린다", type: "Y" }
+      ]},
+      { text: "연락할 때 나는?", options: [
+        { label: "답장이 늦으면 조금 삐진다", type: "Y" },
+        { label: "일부러 답장을 늦게 하며 밀당한다", type: "W" }
+      ]},
+      { text: "연인 사이의 믿음은?", options: [
+        { label: "의심 없이 무조건 믿는다", type: "Z" },
+        { label: "적당한 긴장감이 있어야 좋다", type: "W" }
+      ]}
+    ],
+    results: {
+      X: { emoji: "💘", title: "직진 스윗형", desc: "마음을 숨기지 않고 그대로 표현하는 솔직한 사랑꾼! 연인은 당신 덕분에 애정을 의심할 일이 없어요." },
+      Y: { emoji: "😤", title: "츤데레형", desc: "겉으론 무뚝뚝해 보여도 속은 누구보다 다정한 타입. 표현이 서툴 뿐, 마음은 이미 다 티가 나요." },
+      Z: { emoji: "🤝", title: "무한신뢰형", desc: "화려하진 않지만 흔들림 없는 믿음으로 사랑하는 타입. 오래 만날수록 진가가 드러나는 스타일이에요." },
+      W: { emoji: "😏", title: "밀당고수형", desc: "적당한 긴장감으로 관계에 스릴을 더하는 타입. 다만 너무 과하면 상대가 지칠 수 있으니 균형이 중요해요." }
+    }
+  };
+</script>
+<script src="../js/main.js"></script>
+<script src="../js/quiz-engine.js"></script>
+</body>
+</html>

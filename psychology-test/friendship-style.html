@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우정 케미 테스트 | 웨이팅 놀이터</title>
+<meta name="description" content="의리형, 텐션메이커형, 조언자형, 자유로운 영혼형. 6가지 질문으로 알아보는 친구 사이 나의 포지션 테스트.">
+<link rel="canonical" href="https://example.com/psychology-test/friendship-style.html">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="../index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">홈</a>
+      <a href="../balance-game/index.html">밸런스게임</a>
+      <a href="index.html" class="active">심리테스트</a>
+      <a href="../talk-cards/index.html">대화카드</a>
+      <a href="../trivia/index.html">알쓸신잡</a>
+      <a href="../compatibility/index.html">궁합테스트</a>
+      <a href="../fortune/index.html">오늘의운세</a>
+      <a href="../games/index.html">미니게임</a>
+      <a href="../about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="breadcrumb"><a href="../index.html">홈</a> &gt; <a href="index.html">심리테스트</a> &gt; 우정 케미</p>
+
+  <section class="hero" style="padding-top:24px;">
+    <span class="type-badge friend">👬 친구랑</span>
+    <h1 style="margin-top:14px;">🤜🤛 우정 케미 테스트</h1>
+    <p>친구 사이에서 나는 어떤 포지션일까? 6가지 질문으로 알아보세요.</p>
+  </section>
+
+  <div class="widget">
+    <div id="quiz-root"></div>
+  </div>
+
+  <div class="article">
+    <h2>어떤 유형이 있나요?</h2>
+    <ul>
+      <li><strong>의리형</strong> — 무슨 일이 있어도 내 편이 되어주는 든든한 친구</li>
+      <li><strong>텐션메이커형</strong> — 어디서든 분위기를 살리는 에너지 뿜뿜 친구</li>
+      <li><strong>조언자형</strong> — 냉철하고 현실적인 조언으로 중심을 잡아주는 친구</li>
+      <li><strong>자유로운 영혼형</strong> — 얽매이지 않고 자유롭게 관계를 즐기는 친구</li>
+    </ul>
+    <p>결과는 재미로 즐기는 콘텐츠예요. 친구와 함께 풀어보고 서로의 결과를 맞춰보며 이야기 나눠보세요.</p>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn secondary" href="index.html">다른 심리테스트 보기</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="../about.html">사이트 소개</a>
+      <a href="../privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script>
+  window.QUIZ_DATA = {
+    questions: [
+      { text: "친구가 힘들어할 때 나는?", options: [
+        { label: "무조건 편들어주고 의리를 지킨다", type: "P" },
+        { label: "분위기를 풀어주려고 장난치며 웃겨준다", type: "Q" }
+      ]},
+      { text: "친구 고민 상담엔?", options: [
+        { label: "일단 내 편에서 무조건 지지", type: "P" },
+        { label: "냉정하게 현실적인 조언", type: "R" }
+      ]},
+      { text: "오랜만에 만난 친구와는?", options: [
+        { label: "예전처럼 바로 편하게", type: "P" },
+        { label: "그때그때 텐션 따라 자유롭게", type: "S" }
+      ]},
+      { text: "단체 모임에서 나는?", options: [
+        { label: "분위기 띄우는 역할", type: "Q" },
+        { label: "묵묵히 상황 정리하는 역할", type: "R" }
+      ]},
+      { text: "약속을 잡을 때 나는?", options: [
+        { label: "텐션 있게 바로 정해버림", type: "Q" },
+        { label: "그날 기분 따라 즉흥적으로", type: "S" }
+      ]},
+      { text: "친구와 여행 갈 때 나는?", options: [
+        { label: "계획과 조언을 담당", type: "R" },
+        { label: "자유롭게 흘러가는 대로", type: "S" }
+      ]}
+    ],
+    results: {
+      P: { emoji: "🤜🤛", title: "의리형", desc: "무슨 일이 있어도 내 편이 되어주는 든든한 친구예요. 당신 같은 친구가 있다는 건 큰 행운이에요." },
+      Q: { emoji: "🎈", title: "텐션메이커형", desc: "어디서든 분위기를 살리는 에너지 뿜뿜 친구! 당신이 있으면 모임이 늘 즐거워져요." },
+      R: { emoji: "🧭", title: "조언자형", desc: "냉철하고 현실적인 조언으로 중심을 잡아주는 친구예요. 친구들이 힘들 때 가장 먼저 찾는 사람이죠." },
+      S: { emoji: "🍃", title: "자유로운 영혼형", desc: "얽매이지 않고 자유롭게 관계를 즐기는 타입. 부담 없는 편안함이 당신의 가장 큰 매력이에요." }
+    }
+  };
+</script>
+<script src="../js/main.js"></script>
+<script src="../js/quiz-engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 운세 | 웨이팅 놀이터</title>
+<meta name="description" content="이름 하나로 보는 오늘의 총운, 애정운, 금전운과 행운 아이템. 재미로 보는 하루 운세 테스트.">
+<link rel="canonical" href="https://example.com/fortune/index.html">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="../index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">홈</a>
+      <a href="../balance-game/index.html">밸런스게임</a>
+      <a href="../psychology-test/index.html">심리테스트</a>
+      <a href="../talk-cards/index.html">대화카드</a>
+      <a href="../trivia/index.html">알쓸신잡</a>
+      <a href="../compatibility/index.html">궁합테스트</a>
+      <a href="index.html" class="active">오늘의운세</a>
+      <a href="../games/index.html">미니게임</a>
+      <a href="../about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="breadcrumb"><a href="../index.html">홈</a> &gt; 오늘의 운세</p>
+
+  <section class="hero" style="padding-top:24px;">
+    <h1>🍀 오늘의 운세</h1>
+    <p>이름 하나만 입력하면 나오는 오늘의 총운·애정운·금전운·행운 아이템!</p>
+  </section>
+
+  <div class="widget">
+    <form id="fortune-form">
+      <div class="form-row">
+        <input type="text" id="fortune-name" placeholder="이름을 입력하세요" maxlength="10" required>
+      </div>
+      <div class="btn-row" style="margin-top:14px;">
+        <button type="submit" class="btn">오늘의 운세 보기</button>
+      </div>
+    </form>
+
+    <div id="fortune-result"></div>
+  </div>
+
+  <div class="article">
+    <h2>오늘의 운세, 어떻게 계산되나요?</h2>
+    <p>입력한 이름과 오늘 날짜를 조합해 계산되는 결정론적 알고리즘으로 만들어졌어요. 같은 이름이라도 날짜가 바뀌면 결과가 달라지고, 같은 날짜라면 몇 번을 다시 봐도 같은 결과가 나와요. 실제 점성술이나 사주와는 무관한 재미용 콘텐츠이니 가볍게 즐겨주세요.</p>
+    <p>친구, 가족, 연인과 함께 서로의 운세를 보고 오늘 하루 어떤 걸 조심하면 좋을지, 어떤 행운 아이템을 챙기면 좋을지 이야기 나눠보는 것도 재밌어요.</p>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn secondary" href="../compatibility/index.html">이름 궁합테스트도 해보기</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="../about.html">사이트 소개</a>
+      <a href="../privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/fortune.js"></script>
+</body>
+</html>

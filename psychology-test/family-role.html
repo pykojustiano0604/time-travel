@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가족 관계 유형 테스트 | 웨이팅 놀이터</title>
+<meta name="description" content="든든한 맏이형, 애교둥이형, 중재자형, 독립적 관찰자형. 6가지 질문으로 알아보는 우리 가족 안에서 나의 역할 테스트.">
+<link rel="canonical" href="https://example.com/psychology-test/family-role.html">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="../index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">홈</a>
+      <a href="../balance-game/index.html">밸런스게임</a>
+      <a href="index.html" class="active">심리테스트</a>
+      <a href="../talk-cards/index.html">대화카드</a>
+      <a href="../trivia/index.html">알쓸신잡</a>
+      <a href="../compatibility/index.html">궁합테스트</a>
+      <a href="../fortune/index.html">오늘의운세</a>
+      <a href="../games/index.html">미니게임</a>
+      <a href="../about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="breadcrumb"><a href="../index.html">홈</a> &gt; <a href="index.html">심리테스트</a> &gt; 가족 관계 유형</p>
+
+  <section class="hero" style="padding-top:24px;">
+    <span class="type-badge family">👨‍👩‍👧 가족이랑</span>
+    <h1 style="margin-top:14px;">🏠 가족 관계 유형 테스트</h1>
+    <p>우리 가족 안에서 나는 어떤 역할을 하고 있을까요?</p>
+  </section>
+
+  <div class="widget">
+    <div id="quiz-root"></div>
+  </div>
+
+  <div class="article">
+    <h2>어떤 유형이 있나요?</h2>
+    <ul>
+      <li><strong>든든한 맏이형</strong> — 가족을 이끌고 챙기는 든든한 기둥</li>
+      <li><strong>애교둥이형</strong> — 애교와 웃음으로 가족 분위기를 밝히는 비타민</li>
+      <li><strong>중재자형</strong> — 갈등 상황에서 균형을 잡아주는 평화주의자</li>
+      <li><strong>독립적 관찰자형</strong> — 조용히 자기 몫을 해내는 믿음직한 관찰자</li>
+    </ul>
+    <p>결과는 재미로 즐기는 콘텐츠예요. 가족과 함께 풀어보고 서로 다른 결과가 나왔다면 왜 그런지 이야기해보세요.</p>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn secondary" href="index.html">다른 심리테스트 보기</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="../about.html">사이트 소개</a>
+      <a href="../privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script>
+  window.QUIZ_DATA = {
+    questions: [
+      { text: "가족 모임에서 나는?", options: [
+        { label: "형/누나/언니처럼 이것저것 챙긴다", type: "M" },
+        { label: "애교 부리며 분위기를 풀어준다", type: "N" }
+      ]},
+      { text: "가족끼리 의견이 갈릴 때?", options: [
+        { label: "내가 나서서 정리한다", type: "M" },
+        { label: "중간에서 양쪽 다 다독인다", type: "O" }
+      ]},
+      { text: "집안일이 생기면?", options: [
+        { label: "먼저 나서서 처리한다", type: "M" },
+        { label: "묵묵히 내 몫만 조용히 한다", type: "L" }
+      ]},
+      { text: "가족 단톡방에서 나는?", options: [
+        { label: "이모티콘과 애교 섞인 메시지", type: "N" },
+        { label: "싸움 나면 중재하는 메시지", type: "O" }
+      ]},
+      { text: "명절에 나는?", options: [
+        { label: "애교로 분위기 메이커", type: "N" },
+        { label: "조용히 한 발짝 떨어져 지켜본다", type: "L" }
+      ]},
+      { text: "가족 갈등이 생기면?", options: [
+        { label: "나서서 중재하고 화해시킨다", type: "O" },
+        { label: "굳이 나서지 않고 지켜본다", type: "L" }
+      ]}
+    ],
+    results: {
+      M: { emoji: "🛡️", title: "든든한 맏이형", desc: "가족을 이끌고 챙기는 든든한 기둥이에요. 당신이 있어서 가족 모두가 마음을 놓을 수 있어요." },
+      N: { emoji: "🐣", title: "애교둥이형", desc: "애교와 웃음으로 가족 분위기를 밝히는 비타민 같은 존재예요. 당신 덕분에 집안에 웃음이 끊이지 않아요." },
+      O: { emoji: "⚖️", title: "중재자형", desc: "갈등 상황에서 균형을 잡아주는 평화주의자예요. 가족 사이 다리 역할을 톡톡히 하고 있어요." },
+      L: { emoji: "🔭", title: "독립적 관찰자형", desc: "조용히 자기 몫을 해내는 믿음직한 관찰자 타입이에요. 나서지 않아도 늘 제 역할을 다하고 있어요." }
+    }
+  };
+</script>
+<script src="../js/main.js"></script>
+<script src="../js/quiz-engine.js"></script>
+</body>
+</html>

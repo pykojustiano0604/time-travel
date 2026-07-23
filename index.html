@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>웨이팅 놀이터 | 식당·카페·버스 기다리는 시간 심심풀이 모음</title>
+<meta name="description" content="식당, 카페, 버스, 병원 대기 시간이 지루할 때 친구·가족·연인과 함께 즐기는 밸런스 게임, 심리테스트, 대화 카드, 알쓸신잡, 궁합테스트, 오늘의 운세를 한곳에 모았어요. 회원가입 없이 바로 즐기세요.">
+<meta name="keywords" content="웨이팅, 대기시간, 심심풀이, 밸런스게임, 심리테스트, 대화주제, 알쓸신잡, 궁합테스트, 시간떼우기">
+<link rel="canonical" href="https://example.com/index.html">
+<meta property="og:title" content="웨이팅 놀이터 | 기다리는 시간이 재밌어지는 곳">
+<meta property="og:description" content="식당, 카페, 버스 대기시간에 친구·가족·연인과 즐기는 심심풀이 콘텐츠 모음">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="index.html" class="active">홈</a>
+      <a href="balance-game/index.html">밸런스게임</a>
+      <a href="psychology-test/index.html">심리테스트</a>
+      <a href="talk-cards/index.html">대화카드</a>
+      <a href="trivia/index.html">알쓸신잡</a>
+      <a href="compatibility/index.html">궁합테스트</a>
+      <a href="fortune/index.html">오늘의운세</a>
+      <a href="games/index.html">미니게임</a>
+      <a href="about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h1>기다리는 시간이, 놀 시간으로</h1>
+    <p>식당 웨이팅, 카페 줄, 버스 정류장, 병원 대기실... 애매하게 심심한 그 시간에 친구·가족·연인과 함께 즐길 수 있는 가벼운 콘텐츠 모음이에요. 로그인도, 앱 설치도 필요 없어요.</p>
+    <div class="badge-row">
+      <span class="type-badge friend">👬 친구랑</span>
+      <span class="type-badge family">👨‍👩‍👧 가족이랑</span>
+      <span class="type-badge couple">💑 연인이랑</span>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <h2 style="text-align:center;">지금 누구랑 같이 있나요?</h2>
+    <p class="lead" style="text-align:center;">선택하면 밸런스게임·심리테스트·대화카드 목록에서 그 관계에 어울리는 콘텐츠를 먼저 보여드려요.</p>
+    <div id="type-selector" class="type-selector"></div>
+    <p id="type-status" class="type-status"></p>
+  </section>
+
+  <section class="section">
+    <h2>뭐 하고 놀까? 카테고리 둘러보기</h2>
+    <p class="lead">지금 상황에 맞는 콘텐츠를 골라보세요. 전부 무료이고, 결과는 저장되지 않아요.</p>
+
+    <div class="card-grid">
+      <a class="card" href="balance-game/index.html">
+        <div class="emoji">⚖️</div>
+        <h3>밸런스 게임</h3>
+        <p>둘 중 하나만 고른다면? 음식, 연애, 일상 밸런스 게임으로 취향을 비교해보세요.</p>
+        <div class="tags"><span class="tag-chip">친구</span><span class="tag-chip">연인</span><span class="tag-chip">가족</span></div>
+      </a>
+      <a class="card" href="psychology-test/index.html">
+        <div class="emoji">🧠</div>
+        <h3>심리테스트</h3>
+        <p>성격 유형부터 연애 스타일, 우정 케미, 가족 관계 유형까지. 관계별 맞춤 테스트가 준비되어 있어요.</p>
+        <div class="tags"><span class="tag-chip">친구</span><span class="tag-chip">가족</span><span class="tag-chip">연인</span></div>
+      </a>
+      <a class="card" href="talk-cards/index.html">
+        <div class="emoji">💬</div>
+        <h3>대화 카드</h3>
+        <p>어색한 침묵 대신, 관계별로 준비된 질문 카드로 진짜 대화를 시작해보세요.</p>
+        <div class="tags"><span class="tag-chip">친구</span><span class="tag-chip">가족</span><span class="tag-chip">연인</span></div>
+      </a>
+      <a class="card" href="trivia/index.html">
+        <div class="emoji">📚</div>
+        <h3>알쓸신잡</h3>
+        <p>알아두면 쓸데는 없지만 신기한 잡학 상식들. 대화 소재로도 딱이에요.</p>
+        <div class="tags"><span class="tag-chip">누구나</span></div>
+      </a>
+      <a class="card" href="compatibility/index.html">
+        <div class="emoji">💞</div>
+        <h3>궁합테스트</h3>
+        <p>이름만 입력하면 나오는 재미로 보는 궁합 점수. 결과로 티격태격해보세요.</p>
+        <div class="tags"><span class="tag-chip">연인</span><span class="tag-chip">친구</span></div>
+      </a>
+      <a class="card" href="fortune/index.html">
+        <div class="emoji">🍀</div>
+        <h3>오늘의 운세</h3>
+        <p>이름 하나로 보는 오늘의 총운·애정운·금전운과 행운 아이템.</p>
+        <div class="tags"><span class="tag-chip">누구나</span></div>
+      </a>
+      <a class="card" href="games/index.html">
+        <div class="emoji">🎮</div>
+        <h3>미니게임</h3>
+        <p>간단하게 즐기는 미니게임 코너. 콘텐츠를 하나씩 준비하고 있어요.</p>
+        <div class="tags"><span class="tag-chip">준비중</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>이런 순간에 딱이에요</h2>
+    <div class="article" style="margin-top:0;">
+      <p><strong>맛집 앞에서 웨이팅 30분</strong> — 밸런스 게임 하나면 순삭이에요. 친구랑 취향 차이로 티격태격하는 재미도 쏠쏠하고요.</p>
+      <p><strong>카페에서 친구를 기다릴 때</strong> — 심리테스트로 나를 알아보거나, 오늘의 운세를 확인해보세요.</p>
+      <p><strong>가족 여행 중 차 안에서</strong> — 대화 카드로 평소에 안 하던 질문을 주고받으면 새로운 이야기가 나와요.</p>
+      <p><strong>소개팅이나 연인과의 데이트</strong> — 궁합테스트로 가볍게 웃고, 연애 스타일 테스트로 서로를 더 알아가 보세요.</p>
+      <p>모든 콘텐츠는 별도의 회원가입이나 앱 설치 없이 웹에서 바로 이용할 수 있고, 결과는 서버에 저장되지 않아요. 그저 지금 이 순간, 함께 있는 사람과 즐거운 시간을 보내는 데에만 집중했어요.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="about.html">사이트 소개</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/type-filter.js"></script>
+</body>
+</html>

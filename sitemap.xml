@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://example.com/index.html</loc><lastmod>2026-07-23</lastmod><priority>1.0</priority></url>
+  <url><loc>https://example.com/about.html</loc><lastmod>2026-07-23</lastmod><priority>0.5</priority></url>
+  <url><loc>https://example.com/privacy.html</loc><lastmod>2026-07-23</lastmod><priority>0.3</priority></url>
+
+  <url><loc>https://example.com/games/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.4</priority></url>
+
+  <url><loc>https://example.com/balance-game/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.8</priority></url>
+  <url><loc>https://example.com/balance-game/food.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/balance-game/friends.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/balance-game/couple.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/balance-game/family.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+
+  <url><loc>https://example.com/psychology-test/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.8</priority></url>
+  <url><loc>https://example.com/psychology-test/personality.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/psychology-test/love-style.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/psychology-test/friendship-style.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/psychology-test/family-role.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+
+  <url><loc>https://example.com/talk-cards/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.8</priority></url>
+  <url><loc>https://example.com/talk-cards/friends.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/talk-cards/family.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/talk-cards/couple.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+
+  <url><loc>https://example.com/trivia/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.8</priority></url>
+  <url><loc>https://example.com/trivia/science.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/trivia/history.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://example.com/trivia/daily.html</loc><lastmod>2026-07-23</lastmod><priority>0.7</priority></url>
+
+  <url><loc>https://example.com/compatibility/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.8</priority></url>
+  <url><loc>https://example.com/fortune/index.html</loc><lastmod>2026-07-23</lastmod><priority>0.8</priority></url>
+</urlset>

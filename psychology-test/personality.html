@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 성격 유형 테스트 | 웨이팅 놀이터</title>
+<meta name="description" content="텐션 만수르형, 계획 완벽주의형, 자유로운 즉흥형, 조용한 힐링형. 6가지 질문으로 알아보는 나의 성격 유형 테스트.">
+<link rel="canonical" href="https://example.com/psychology-test/personality.html">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="../index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">홈</a>
+      <a href="../balance-game/index.html">밸런스게임</a>
+      <a href="index.html" class="active">심리테스트</a>
+      <a href="../talk-cards/index.html">대화카드</a>
+      <a href="../trivia/index.html">알쓸신잡</a>
+      <a href="../compatibility/index.html">궁합테스트</a>
+      <a href="../fortune/index.html">오늘의운세</a>
+      <a href="../games/index.html">미니게임</a>
+      <a href="../about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="breadcrumb"><a href="../index.html">홈</a> &gt; <a href="index.html">심리테스트</a> &gt; 성격 유형</p>
+
+  <section class="hero" style="padding-top:24px;">
+    <h1>🧭 나의 성격 유형 테스트</h1>
+    <p>6가지 질문에 답하면 나오는 4가지 성격 유형 중 나는 어디에 속할까요?</p>
+  </section>
+
+  <div class="widget">
+    <div id="quiz-root"></div>
+  </div>
+
+  <div class="article">
+    <h2>어떤 유형이 있나요?</h2>
+    <ul>
+      <li><strong>텐션 만수르형</strong> — 어디서든 분위기를 살리는 에너자이저</li>
+      <li><strong>계획 완벽주의형</strong> — 모든 일에 계획이 있어야 마음이 편한 타입</li>
+      <li><strong>자유로운 즉흥형</strong> — 계획보다는 그때그때 흐름을 따르는 타입</li>
+      <li><strong>조용한 힐링형</strong> — 혼자만의 시간으로 에너지를 채우는 타입</li>
+    </ul>
+    <p>결과는 재미로 즐기는 콘텐츠이며 실제 심리검사와는 무관합니다. 같이 있는 사람과 결과를 비교하며 대화 소재로 활용해보세요.</p>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn secondary" href="index.html">다른 심리테스트 보기</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="../about.html">사이트 소개</a>
+      <a href="../privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script>
+  window.QUIZ_DATA = {
+    questions: [
+      { text: "모임에서 나는?", options: [
+        { label: "분위기 띄우는 텐션 담당", type: "A" },
+        { label: "일정과 장소를 미리 다 챙기는 편", type: "B" }
+      ]},
+      { text: "주말 계획은?", options: [
+        { label: "사람들과 약속 가득", type: "A" },
+        { label: "일단 몸이 가는 대로 즉흥적으로", type: "C" }
+      ]},
+      { text: "에너지 충전법은?", options: [
+        { label: "사람 만나서 실컷 떠들기", type: "A" },
+        { label: "혼자 조용히 쉬기", type: "D" }
+      ]},
+      { text: "할 일이 많을 때 나는?", options: [
+        { label: "To-do 리스트부터 작성", type: "B" },
+        { label: "일단 손에 잡히는 것부터", type: "C" }
+      ]},
+      { text: "여행 스타일은?", options: [
+        { label: "일정표 빡빡하게 짜기", type: "B" },
+        { label: "숙소에서 여유롭게 힐링", type: "D" }
+      ]},
+      { text: "갑자기 생긴 자유시간엔?", options: [
+        { label: "즉흥적으로 어디론가 떠나기", type: "C" },
+        { label: "집에서 조용히 쉬기", type: "D" }
+      ]}
+    ],
+    results: {
+      A: { emoji: "🎉", title: "텐션 만수르형", desc: "어디서든 분위기 메이커! 에너지 넘치는 당신 곁엔 사람이 끊이지 않아요. 다만 가끔은 혼자만의 시간도 챙겨주세요." },
+      B: { emoji: "📋", title: "계획 완벽주의형", desc: "모든 일에 계획이 있어야 마음이 편한 타입. 덕분에 주변 사람들이 든든해하지만, 가끔은 즉흥적인 하루도 괜찮아요." },
+      C: { emoji: "🌈", title: "자유로운 즉흥형", desc: "계획보다는 그때그때 흐름을 따르는 자유로운 영혼! 예상치 못한 재미를 잘 찾아내는 타입이에요." },
+      D: { emoji: "🌙", title: "조용한 힐링형", desc: "혼자만의 시간으로 에너지를 채우는 타입. 조용해 보여도 속은 누구보다 단단한 사람이에요." }
+    }
+  };
+</script>
+<script src="../js/main.js"></script>
+<script src="../js/quiz-engine.js"></script>
+</body>
+</html>
