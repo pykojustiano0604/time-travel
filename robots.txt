@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://time-travel.vercel.app/sitemap.xml
+Sitemap: https://time-travel-rose.vercel.app/sitemap.xml
