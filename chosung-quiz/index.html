@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>초성퀴즈 | 시간순삭</title>
+<meta name="description" content="초성만 보고 단어를 맞혀보는 초성퀴즈 25문제. 음식, 동물, 나라, 직업 등 다양한 주제로 대기 시간에 두뇌를 풀가동해보세요.">
+<link rel="canonical" href="https://time-travel-rose.vercel.app/chosung-quiz/index.html">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="../index.html" class="logo">시간<span>순삭</span></a>
+    <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">홈</a>
+      <a href="../balance-game/index.html">밸런스게임</a>
+      <a href="../psychology-test/index.html">심리테스트</a>
+      <a href="../talk-cards/index.html">대화카드</a>
+      <a href="../trivia/index.html">알쓸신잡</a>
+      <a href="../compatibility/index.html">궁합테스트</a>
+      <a href="../fortune/index.html">오늘의운세</a>
+      <a href="index.html" class="active">초성퀴즈</a>
+      <a href="../games/index.html">미니게임</a>
+      <a href="../about.html">소개</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="breadcrumb"><a href="../index.html">홈</a> &gt; 초성퀴즈</p>
+
+  <section class="hero" style="padding-top:24px;">
+    <h1>🔤 초성퀴즈</h1>
+    <p>초성만 보고 단어를 맞혀보세요! 옆 사람과 누가 더 빨리 맞히는지 겨뤄봐도 재밌어요.</p>
+  </section>
+
+  <div class="widget">
+    <div id="chosung-root"></div>
+  </div>
+
+  <div class="article">
+    <h2>초성퀴즈 이렇게 즐겨보세요</h2>
+    <p>초성 힌트를 보고 정답을 크게 외쳐보세요. 혼자 풀어도 재밌지만, 여러 명이 함께 누가 먼저 맞히는지 겨루면 훨씬 신나요. 정답이 헷갈리면 "정답 보기" 버튼을 눌러 바로 확인할 수 있어요. 음식, 동물, 나라, 직업, 스포츠 등 다양한 주제가 랜덤 순서로 나와서 매번 다르게 즐길 수 있습니다.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-links">
+      <a href="../about.html">사이트 소개</a>
+      <a href="../privacy.html">개인정보처리방침</a>
+    </div>
+    <p>© 2026 시간순삭. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+  </div>
+</footer>
+
+<script>
+  window.CHOSUNG_DATA = [
+    { hint: "ㅅㄱㅈㅅ", answer: "사과주스", category: "음식" },
+    { hint: "ㅂㅂㅂ", answer: "비빔밥", category: "음식" },
+    { hint: "ㄸㅂㅇ", answer: "떡볶이", category: "음식" },
+    { hint: "ㄱㅊㅉㄱ", answer: "김치찌개", category: "음식" },
+    { hint: "ㄹㅁ", answer: "라면", category: "음식" },
+    { hint: "ㅊㅋㄹ", answer: "초콜릿", category: "음식" },
+    { hint: "ㅎㄹㅇ", answer: "호랑이", category: "동물" },
+    { hint: "ㅋㄲㄹ", answer: "코끼리", category: "동물" },
+    { hint: "ㄱㅇㅈ", answer: "강아지", category: "동물" },
+    { hint: "ㄱㅇㅇ", answer: "고양이", category: "동물" },
+    { hint: "ㄷㅎㅁㄱ", answer: "대한민국", category: "나라" },
+    { hint: "ㅍㄹㅅ", answer: "프랑스", category: "나라" },
+    { hint: "ㅅㅅㄴ", answer: "선생님", category: "직업" },
+    { hint: "ㅇㅅ", answer: "의사", category: "직업" },
+    { hint: "ㅊㄱ", answer: "축구", category: "스포츠" },
+    { hint: "ㅇㄱ", answer: "야구", category: "스포츠" },
+    { hint: "ㅇㄹ", answer: "여름", category: "계절" },
+    { hint: "ㄱㅇ", answer: "겨울", category: "계절" },
+    { hint: "ㅅㄹ", answer: "사랑", category: "단어" },
+    { hint: "ㅎㅂ", answer: "행복", category: "단어" },
+    { hint: "ㄴㅇㅌ", answer: "놀이터", category: "장소" },
+    { hint: "ㄷㅅㄱ", answer: "도서관", category: "장소" },
+    { hint: "ㅈㅈㄱ", answer: "자전거", category: "물건" },
+    { hint: "ㄴㅈㄱ", answer: "냉장고", category: "물건" },
+    { hint: "ㅇㅅ", answer: "우산", category: "물건" }
+  ];
+</script>
+<script src="../js/main.js"></script>
+<script src="../js/chosung-engine.js"></script>
+</body>
+</html>
