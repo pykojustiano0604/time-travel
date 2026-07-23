@@ -39,7 +39,6 @@
           picks.push(side === "a" ? q.a : q.b);
           current++;
           render();
-          root.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       });
     }
@@ -66,7 +65,6 @@
         countB = 0;
         picks = [];
         render();
-        root.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
 

@@ -57,7 +57,6 @@
           pos++;
           revealed = false;
           render();
-          root.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       }
     }
@@ -78,7 +77,6 @@
         pos = 0;
         revealed = false;
         render();
-        root.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
 

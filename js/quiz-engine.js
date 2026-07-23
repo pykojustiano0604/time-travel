@@ -39,7 +39,6 @@
           scores[type] = (scores[type] || 0) + 1;
           current++;
           render();
-          root.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       });
     }
@@ -75,7 +74,6 @@
         current = 0;
         scores = {};
         render();
-        root.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
 
