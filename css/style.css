@@ -1,4 +1,4 @@
-/* 웨이팅 놀이터 - 공통 스타일 */
+/* 시간순삭 - 공통 스타일 */
 :root {
   --color-bg: #fff8f2;
   --color-surface: #ffffff;
@@ -101,6 +101,8 @@ body.has-waiting-timer .site-header {
   font-size: 1.5rem;
   cursor: pointer;
   color: var(--color-text);
+  min-width: 44px;
+  min-height: 44px;
   padding: 4px 8px;
 }
 
@@ -177,10 +179,6 @@ body.has-waiting-timer .site-header {
   border: 1px solid #ffd9c2;
 }
 
-.type-badge.friend { background: #eaf3ff; color: #2d6ee0; border-color: #cfe3ff; }
-.type-badge.family { background: #eafaf0; color: #229a5b; border-color: #cdeedb; }
-.type-badge.couple { background: #ffeef4; color: #e0447e; border-color: #ffd3e4; }
-
 /* Category grid */
 .card-grid {
   display: grid;
@@ -219,7 +217,8 @@ body.has-waiting-timer .site-header {
   color: var(--color-text-light);
 }
 
-.card .tags {
+.card .tags,
+.link-item .tags {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
@@ -375,7 +374,10 @@ body.has-waiting-timer .site-header {
   gap: 12px;
 }
 
-.option-grid.two-col { grid-template-columns: 1fr 1fr; }
+/* 모바일에서는 1단으로 쌓고, 화면이 넉넉할 때만 나란히 2단으로 보여준다 */
+@media (min-width: 520px) {
+  .option-grid.two-col { grid-template-columns: 1fr 1fr; }
+}
 
 .option-btn {
   background: #fffaf6;

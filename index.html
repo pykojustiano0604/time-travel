@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>웨이팅 놀이터 | 식당·카페·버스 기다리는 시간 심심풀이 모음</title>
+<title>시간순삭 | 식당·카페·버스 기다리는 시간 심심풀이 모음</title>
 <meta name="description" content="식당, 카페, 버스, 병원 대기 시간이 지루할 때 친구·가족·연인과 함께 즐기는 밸런스 게임, 심리테스트, 대화 카드, 알쓸신잡, 궁합테스트, 오늘의 운세를 한곳에 모았어요. 회원가입 없이 바로 즐기세요.">
 <meta name="keywords" content="웨이팅, 대기시간, 심심풀이, 밸런스게임, 심리테스트, 대화주제, 알쓸신잡, 궁합테스트, 시간떼우기">
-<link rel="canonical" href="https://example.com/index.html">
-<meta property="og:title" content="웨이팅 놀이터 | 기다리는 시간이 재밌어지는 곳">
+<link rel="canonical" href="https://time-travel.vercel.app/index.html">
+<meta property="og:title" content="시간순삭 | 기다리는 시간이 재밌어지는 곳">
 <meta property="og:description" content="식당, 카페, 버스 대기시간에 친구·가족·연인과 즐기는 심심풀이 콘텐츠 모음">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="css/style.css">
@@ -16,7 +16,7 @@
 
 <header class="site-header">
   <div class="inner">
-    <a href="index.html" class="logo">웨이팅<span>놀이터</span></a>
+    <a href="index.html" class="logo">시간<span>순삭</span></a>
     <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
     <nav class="main-nav">
       <a href="index.html" class="active">홈</a>
@@ -37,15 +37,15 @@
     <h1>기다리는 시간이, 놀 시간으로</h1>
     <p>식당 웨이팅, 카페 줄, 버스 정류장, 병원 대기실... 애매하게 심심한 그 시간에 친구·가족·연인과 함께 즐길 수 있는 가벼운 콘텐츠 모음이에요. 로그인도, 앱 설치도 필요 없어요.</p>
     <div class="badge-row">
-      <span class="type-badge friend">👬 친구랑</span>
-      <span class="type-badge family">👨‍👩‍👧 가족이랑</span>
-      <span class="type-badge couple">💑 연인이랑</span>
+      <span class="type-badge">🧍 혼자서</span>
+      <span class="type-badge">👫 둘이서</span>
+      <span class="type-badge">👨‍👩‍👧‍👦 여럿이서</span>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
-    <h2 style="text-align:center;">지금 누구랑 같이 있나요?</h2>
-    <p class="lead" style="text-align:center;">선택하면 밸런스게임·심리테스트·대화카드 목록에서 그 관계에 어울리는 콘텐츠를 먼저 보여드려요.</p>
+    <h2 style="text-align:center;">지금 몇 명이서 함께 있나요?</h2>
+    <p class="lead" style="text-align:center;">선택하면 밸런스게임·심리테스트·대화카드 목록에서 그 인원수에 어울리는 콘텐츠를 먼저 보여드려요.</p>
     <div id="type-selector" class="type-selector"></div>
     <p id="type-status" class="type-status"></p>
   </section>
@@ -59,19 +59,19 @@
         <div class="emoji">⚖️</div>
         <h3>밸런스 게임</h3>
         <p>둘 중 하나만 고른다면? 음식, 연애, 일상 밸런스 게임으로 취향을 비교해보세요.</p>
-        <div class="tags"><span class="tag-chip">친구</span><span class="tag-chip">연인</span><span class="tag-chip">가족</span></div>
+        <div class="tags"><span class="tag-chip">혼자</span><span class="tag-chip">둘이서</span><span class="tag-chip">여럿이서</span></div>
       </a>
       <a class="card" href="psychology-test/index.html">
         <div class="emoji">🧠</div>
         <h3>심리테스트</h3>
-        <p>성격 유형부터 연애 스타일, 우정 케미, 가족 관계 유형까지. 관계별 맞춤 테스트가 준비되어 있어요.</p>
-        <div class="tags"><span class="tag-chip">친구</span><span class="tag-chip">가족</span><span class="tag-chip">연인</span></div>
+        <p>성격 유형부터 연애 스타일, 우정 케미, 가족 관계 유형까지. 인원수별 맞춤 테스트가 준비되어 있어요.</p>
+        <div class="tags"><span class="tag-chip">혼자</span><span class="tag-chip">둘이서</span><span class="tag-chip">여럿이서</span></div>
       </a>
       <a class="card" href="talk-cards/index.html">
         <div class="emoji">💬</div>
         <h3>대화 카드</h3>
-        <p>어색한 침묵 대신, 관계별로 준비된 질문 카드로 진짜 대화를 시작해보세요.</p>
-        <div class="tags"><span class="tag-chip">친구</span><span class="tag-chip">가족</span><span class="tag-chip">연인</span></div>
+        <p>어색한 침묵 대신, 인원수별로 준비된 질문 카드로 진짜 대화를 시작해보세요.</p>
+        <div class="tags"><span class="tag-chip">둘이서</span><span class="tag-chip">여럿이서</span></div>
       </a>
       <a class="card" href="trivia/index.html">
         <div class="emoji">📚</div>
@@ -83,7 +83,7 @@
         <div class="emoji">💞</div>
         <h3>궁합테스트</h3>
         <p>이름만 입력하면 나오는 재미로 보는 궁합 점수. 결과로 티격태격해보세요.</p>
-        <div class="tags"><span class="tag-chip">연인</span><span class="tag-chip">친구</span></div>
+        <div class="tags"><span class="tag-chip">둘이서</span></div>
       </a>
       <a class="card" href="fortune/index.html">
         <div class="emoji">🍀</div>
@@ -118,7 +118,7 @@
       <a href="about.html">사이트 소개</a>
       <a href="privacy.html">개인정보처리방침</a>
     </div>
-    <p>© 2026 웨이팅 놀이터. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
+    <p>© 2026 시간순삭. 모든 콘텐츠는 재미를 위해 제공되며 실제 심리학적·점성술적 근거와 무관합니다.</p>
   </div>
 </footer>
 

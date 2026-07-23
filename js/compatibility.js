@@ -64,8 +64,7 @@
 
     var order = ["friend", "family", "couple"];
     var iconMap = { friend: "👬 친구", family: "👨‍👩‍👧 가족", couple: "💑 연인" };
-    var initial = (window.WPTypeFilter && window.WPTypeFilter.getType()) || "couple";
-    if (order.indexOf(initial) === -1) initial = "couple";
+    var initial = "couple";
 
     container.innerHTML = order.map(function (rel) {
       var active = rel === initial ? " active" : "";
