@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🔢 스도쿠 | 시간순삭 미니게임</title>
+<meta name="description" content="난이도를 골라 즐기는 스도쿠 미니게임. 힌트와 완성 시간 기록까지, 회원가입도 앱 설치도 필요 없어요.">
+<meta property="og:title" content="🔢 스도쿠 | 시간순삭">
+<meta property="og:description" content="쉬움부터 어려움까지, 시간을 재며 즐기는 스도쿠! 너도 도전해볼래?">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #fff8f2;
+    --surface: #ffffff;
+    --primary: #ff7a4d;
+    --primary-dark: #e8603a;
+    --secondary: #4d8dff;
+    --text: #2b2320;
+    --text-light: #6b6058;
+    --border: #f0e0d4;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .game-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 28px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar .title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+  }
+
+  .ad-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed #ffd9c2;
+    border-radius: 12px;
+    background: #fffaf6;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 6px;
+  }
+
+  .ad-slot.banner { min-height: 50px; max-width: 320px; margin: 0 auto; }
+  .ad-slot.rectangle { min-height: 250px; max-width: 300px; margin: 10px auto 0; display: none; }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 6px 18px rgba(43, 35, 32, 0.10);
+    padding: 22px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* 시작 화면 */
+  #screen-start { align-items: center; justify-content: center; text-align: center; gap: 12px; }
+  #screen-start .emoji-big { font-size: 3.4rem; }
+  #screen-start h1 { font-size: 1.4rem; margin: 0; }
+  #screen-start p { color: var(--text-light); font-size: 0.92rem; margin: 0; line-height: 1.6; }
+
+  .diff-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+
+  .diff-btn {
+    background: #fff1e8;
+    color: var(--primary-dark);
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-weight: 800;
+    font-size: 0.98rem;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .diff-btn:active { background: var(--primary); color: #fff; }
+
+  .best-times {
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* 로딩 화면 */
+  #screen-loading { align-items: center; justify-content: center; text-align: center; gap: 10px; }
+  #screen-loading .spin { font-size: 2.6rem; animation: spin-anim 1s linear infinite; }
+  @keyframes spin-anim { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  #screen-loading p { color: var(--text-light); font-size: 0.92rem; }
+
+  /* 플레이 화면 */
+  #screen-play { gap: 12px; }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff1e8;
+    border-radius: 14px;
+    padding: 10px 16px;
+  }
+
+  .hud .stat { text-align: center; }
+  .hud .stat .num { font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); }
+  .hud .stat .label { font-size: 0.68rem; color: var(--text-light); font-weight: 700; }
+
+  .sudoku-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 1px;
+    background: var(--text);
+    border: 2px solid var(--text);
+    border-radius: 6px;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    max-width: 100%;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .sudoku-cell {
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(14px, 4.6vw, 22px);
+    font-weight: 700;
+    cursor: pointer;
+    aspect-ratio: 1 / 1;
+    touch-action: manipulation;
+  }
+
+  .sudoku-cell.given { color: var(--text); background: #fef6ee; }
+  .sudoku-cell.editable { color: var(--secondary); }
+  .sudoku-cell.selected { background: #ffe0c2 !important; }
+  .sudoku-cell.same-value { background: #fff1e0; }
+  .sudoku-cell.conflict { background: #ffd6d6 !important; color: #c0392b; }
+  .sudoku-cell.thick-right { border-right: 2px solid var(--text); }
+  .sudoku-cell.thick-bottom { border-bottom: 2px solid var(--text); }
+
+  .numpad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+    margin-top: 4px;
+  }
+
+  .numpad-btn {
+    padding: 13px 0;
+    border-radius: 10px;
+    border: none;
+    background: #fff1e8;
+    color: var(--primary-dark);
+    font-size: 1.15rem;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+    font-family: inherit;
+  }
+  .numpad-btn.action { background: #f5f0eb; color: var(--text); font-size: 0.82rem; }
+  .numpad-btn:active { transform: scale(0.94); }
+
+  .hint-row { display: flex; gap: 8px; margin-top: 4px; }
+  .hint-btn {
+    flex: 1;
+    background: #fff;
+    color: var(--primary-dark);
+    border: 2px solid var(--primary);
+    border-radius: 999px;
+    padding: 11px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .hint-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .quit-link {
+    background: none; border: none; color: var(--text-light);
+    font-size: 0.82rem; text-decoration: underline; cursor: pointer;
+    text-align: center; margin-top: 2px; touch-action: manipulation;
+  }
+
+  /* 결과 화면 */
+  #screen-result { align-items: center; justify-content: center; text-align: center; gap: 8px; }
+  #screen-result .emoji-big { font-size: 3rem; }
+  #screen-result h2 { margin: 4px 0 0; font-size: 1.3rem; }
+  #result-time { font-size: 2rem; font-weight: 800; color: var(--primary-dark); margin: 2px 0; }
+  #result-diff { font-size: 0.95rem; color: var(--text); font-weight: 700; }
+  #result-best { font-size: 0.85rem; color: var(--text-light); }
+
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+    touch-action: manipulation;
+  }
+  .btn:active { background: var(--primary-dark); transform: scale(0.98); }
+  .btn.secondary { background: #fff; color: var(--primary-dark); border: 2px solid var(--primary); }
+
+  .share-section { margin-top: 14px; width: 100%; }
+  .share-label { font-size: 0.82rem; color: var(--text-light); margin-bottom: 10px; }
+  .share-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; border-radius: 999px; padding: 11px 18px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    touch-action: manipulation; font-family: inherit;
+  }
+  .share-btn.kakao { background: #fee500; color: #3c1e1e; }
+  .share-btn.native { background: var(--secondary); color: #fff; }
+  .share-btn.small { padding: 8px 14px; font-size: 0.82rem; background: #f5f0eb; color: var(--text); }
+  .share-btn:active { transform: scale(0.96); }
+
+  .share-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2b2320; color: #fff; padding: 10px 20px; border-radius: 999px;
+    font-size: 0.85rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; z-index: 999; white-space: nowrap;
+  }
+  .share-toast.show { opacity: 1; }
+
+  .foot-note { text-align: center; font-size: 0.78rem; color: var(--text-light); }
+  .foot-note a { color: var(--secondary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="game-shell">
+  <div class="top-bar">
+    <div class="title">🔢 스도쿠</div>
+  </div>
+
+  <!-- 광고 영역 1: 상단 배너 -->
+  <div class="ad-slot banner">광고 영역 (배너, 320x50)</div>
+
+  <div class="game-card">
+    <div id="screen-start" class="screen active">
+      <div class="emoji-big">🔢</div>
+      <h1>스도쿠</h1>
+      <p>가로·세로·3x3 칸에<br>1~9가 겹치지 않게 채워보세요.</p>
+      <div class="diff-row">
+        <button class="diff-btn" data-diff="easy">쉬움</button>
+        <button class="diff-btn" data-diff="medium">보통</button>
+        <button class="diff-btn" data-diff="hard">어려움</button>
+      </div>
+      <div class="best-times" id="best-times"></div>
+    </div>
+
+    <div id="screen-loading" class="screen">
+      <div class="spin">🔄</div>
+      <p>퍼즐을 만들고 있어요...</p>
+    </div>
+
+    <div id="screen-play" class="screen">
+      <div class="hud">
+        <div class="stat"><div class="num" id="hud-time">00:00</div><div class="label">시간</div></div>
+        <div class="stat"><div class="num" id="hud-diff">쉬움</div><div class="label">난이도</div></div>
+        <div class="stat"><div class="num" id="hud-hint">3</div><div class="label">남은 힌트</div></div>
+      </div>
+      <div class="sudoku-grid" id="grid"></div>
+      <div class="numpad" id="numpad">
+        <button class="numpad-btn" data-num="1">1</button>
+        <button class="numpad-btn" data-num="2">2</button>
+        <button class="numpad-btn" data-num="3">3</button>
+        <button class="numpad-btn" data-num="4">4</button>
+        <button class="numpad-btn" data-num="5">5</button>
+        <button class="numpad-btn" data-num="6">6</button>
+        <button class="numpad-btn" data-num="7">7</button>
+        <button class="numpad-btn" data-num="8">8</button>
+        <button class="numpad-btn" data-num="9">9</button>
+        <button class="numpad-btn action" data-num="0">지우기</button>
+      </div>
+      <div class="hint-row">
+        <button class="hint-btn" id="btn-hint">💡 힌트 사용</button>
+      </div>
+      <button class="quit-link" id="btn-quit">다른 난이도 선택</button>
+    </div>
+
+    <div id="screen-result" class="screen">
+      <div class="emoji-big">🎉</div>
+      <h2>스도쿠 완성!</h2>
+      <div id="result-time">00:00</div>
+      <div id="result-diff"></div>
+      <div id="result-best"></div>
+      <button class="btn" id="btn-new-game">새 게임</button>
+
+      <div class="share-section">
+        <div class="share-label">기록을 친구에게 자랑해보세요!</div>
+        <div class="share-row">
+          <button class="share-btn kakao" id="btn-share-kakao">💬 카카오톡</button>
+          <button class="share-btn native" id="btn-share-native">📤 공유하기</button>
+        </div>
+        <div class="share-row">
+          <button class="share-btn small" id="btn-share-twitter">🐦 X</button>
+          <button class="share-btn small" id="btn-share-facebook">📘 페이스북</button>
+          <button class="share-btn small" id="btn-share-copy">🔗 링크 복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 광고 영역 2: 결과 화면 사각형 배너 -->
+  <div class="ad-slot rectangle" id="ad-result">광고 영역 (사각형, 300x250)</div>
+
+  <p class="foot-note">⏱️ 시간순삭의 미니게임 &middot; <a href="index.html">다른 콘텐츠 보러 가기</a></p>
+</div>
+
+<div class="share-toast" id="share-toast"></div>
+
+<script>
+(function () {
+  /* ===================== 스도쿠 생성기 / 검사기 ===================== */
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function range(n) {
+    var a = [];
+    for (var i = 0; i < n; i++) a.push(i);
+    return a;
+  }
+
+  function getRow(i) { return Math.floor(i / 9); }
+  function getCol(i) { return i % 9; }
+
+  function isValidPlacement(grid, index, value) {
+    var row = getRow(index), col = getCol(index);
+    for (var c = 0; c < 9; c++) { if (grid[row * 9 + c] === value) return false; }
+    for (var r = 0; r < 9; r++) { if (grid[r * 9 + col] === value) return false; }
+    var boxRow = Math.floor(row / 3) * 3, boxCol = Math.floor(col / 3) * 3;
+    for (var dr = 0; dr < 3; dr++) {
+      for (var dc = 0; dc < 3; dc++) {
+        if (grid[(boxRow + dr) * 9 + (boxCol + dc)] === value) return false;
+      }
+    }
+    return true;
+  }
+
+  function getCandidates(grid, index) {
+    var result = [];
+    for (var v = 1; v <= 9; v++) { if (isValidPlacement(grid, index, v)) result.push(v); }
+    return result;
+  }
+
+  function findEmptyCellMRV(grid) {
+    var best = -1, bestCount = 10;
+    for (var i = 0; i < 81; i++) {
+      if (grid[i] === 0) {
+        var c = getCandidates(grid, i).length;
+        if (c < bestCount) {
+          bestCount = c; best = i;
+          if (c === 0) return i;
+        }
+      }
+    }
+    return best;
+  }
+
+  function solveRandomFill(grid) {
+    var idx = findEmptyCellMRV(grid);
+    if (idx === -1) return true;
+    var candidates = shuffle(getCandidates(grid, idx));
+    for (var k = 0; k < candidates.length; k++) {
+      grid[idx] = candidates[k];
+      if (solveRandomFill(grid)) return true;
+      grid[idx] = 0;
+    }
+    return false;
+  }
+
+  function generateSolvedGrid() {
+    var grid = new Array(81).fill(0);
+    solveRandomFill(grid);
+    return grid;
+  }
+
+  function countSolutions(grid, limit) {
+    var count = 0;
+    var g = grid.slice();
+    function helper() {
+      if (count >= limit) return;
+      var idx = findEmptyCellMRV(g);
+      if (idx === -1) { count++; return; }
+      var candidates = getCandidates(g, idx);
+      for (var k = 0; k < candidates.length; k++) {
+        g[idx] = candidates[k];
+        helper();
+        g[idx] = 0;
+        if (count >= limit) return;
+      }
+    }
+    helper();
+    return count;
+  }
+
+  function countNonZero(grid) {
+    var n = 0;
+    for (var i = 0; i < 81; i++) { if (grid[i] !== 0) n++; }
+    return n;
+  }
+
+  function tryRemoveOnce(puzzle, targetClues) {
+    var positions = shuffle(range(81).filter(function (i) { return puzzle[i] !== 0; }));
+    var removedAny = false;
+    for (var k = 0; k < positions.length; k++) {
+      if (countNonZero(puzzle) <= targetClues) break;
+      var pos = positions[k];
+      var backup = puzzle[pos];
+      puzzle[pos] = 0;
+      var solCount = countSolutions(puzzle, 2);
+      if (solCount === 1) {
+        removedAny = true;
+      } else {
+        puzzle[pos] = backup;
+      }
+    }
+    return removedAny;
+  }
+
+  function generatePuzzle(targetClues) {
+    var solution = generateSolvedGrid();
+    var puzzle = solution.slice();
+    for (var pass = 0; pass < 4; pass++) {
+      if (countNonZero(puzzle) <= targetClues) break;
+      if (!tryRemoveOnce(puzzle, targetClues)) break;
+    }
+    return { puzzle: puzzle, solution: solution };
+  }
+
+  function computeConflicts(cells) {
+    var conflictSet = {};
+    for (var i = 0; i < 81; i++) {
+      if (!cells[i].value) continue;
+      var row = getRow(i), col = getCol(i);
+      for (var c = 0; c < 9; c++) {
+        var j = row * 9 + c;
+        if (j !== i && cells[j].value === cells[i].value) { conflictSet[i] = true; conflictSet[j] = true; }
+      }
+      for (var r = 0; r < 9; r++) {
+        var j2 = r * 9 + col;
+        if (j2 !== i && cells[j2].value === cells[i].value) { conflictSet[i] = true; conflictSet[j2] = true; }
+      }
+      var boxRow = Math.floor(row / 3) * 3, boxCol = Math.floor(col / 3) * 3;
+      for (var dr = 0; dr < 3; dr++) {
+        for (var dc = 0; dc < 3; dc++) {
+          var j3 = (boxRow + dr) * 9 + (boxCol + dc);
+          if (j3 !== i && cells[j3].value === cells[i].value) { conflictSet[i] = true; conflictSet[j3] = true; }
+        }
+      }
+    }
+    return conflictSet;
+  }
+
+  /* ===================== 게임 상태 / UI ===================== */
+  var DIFFICULTY_CLUES = { easy: 42, medium: 34, hard: 27 };
+  var DIFFICULTY_LABEL = { easy: "쉬움", medium: "보통", hard: "어려움" };
+  var HINTS_BY_DIFFICULTY = { easy: 5, medium: 4, hard: 3 };
+  var BEST_KEY_PREFIX = "sudoku_best_";
+
+  var screens = {
+    start: document.getElementById("screen-start"),
+    loading: document.getElementById("screen-loading"),
+    play: document.getElementById("screen-play"),
+    result: document.getElementById("screen-result")
+  };
+  var adResult = document.getElementById("ad-result");
+  var grid = document.getElementById("grid");
+  var hudTime = document.getElementById("hud-time");
+  var hudDiff = document.getElementById("hud-diff");
+  var hudHint = document.getElementById("hud-hint");
+  var bestTimesEl = document.getElementById("best-times");
+  var resultTime = document.getElementById("result-time");
+  var resultDiff = document.getElementById("result-diff");
+  var resultBest = document.getElementById("result-best");
+  var hintBtn = document.getElementById("btn-hint");
+
+  var currentDiff = "easy";
+  var cells = [];
+  var solution = [];
+  var selectedIndex = null;
+  var hintsLeft = 0;
+  var elapsedSeconds = 0;
+  var timerId = null;
+  var playing = false;
+
+  function showScreen(name) {
+    Object.keys(screens).forEach(function (key) {
+      screens[key].classList.toggle("active", key === name);
+    });
+    adResult.style.display = (name === "result") ? "flex" : "none";
+  }
+
+  function formatTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+  }
+
+  function getBestTime(diff) {
+    try {
+      var v = parseInt(localStorage.getItem(BEST_KEY_PREFIX + diff), 10);
+      return isNaN(v) ? null : v;
+    } catch (e) { return null; }
+  }
+  function setBestTime(diff, sec) {
+    try { localStorage.setItem(BEST_KEY_PREFIX + diff, String(sec)); } catch (e) { /* 저장 실패 시 무시 */ }
+  }
+
+  function renderBestTimes() {
+    var html = "";
+    ["easy", "medium", "hard"].forEach(function (diff) {
+      var v = getBestTime(diff);
+      html += "<div>" + DIFFICULTY_LABEL[diff] + " 최고 기록: " + (v ? formatTime(v) : "-") + "</div>";
+    });
+    bestTimesEl.innerHTML = html;
+  }
+
+  function renderGrid() {
+    var conflicts = computeConflicts(cells);
+    var html = "";
+    for (var i = 0; i < 81; i++) {
+      var row = getRow(i), col = getCol(i);
+      var classes = ["sudoku-cell", cells[i].given ? "given" : "editable"];
+      if (i === selectedIndex) classes.push("selected");
+      if (conflicts[i]) {
+        classes.push("conflict");
+      } else if (selectedIndex !== null && cells[selectedIndex].value && cells[i].value === cells[selectedIndex].value) {
+        classes.push("same-value");
+      }
+      if (col % 3 === 2 && col !== 8) classes.push("thick-right");
+      if (row % 3 === 2 && row !== 8) classes.push("thick-bottom");
+      html += '<div class="' + classes.join(" ") + '" data-index="' + i + '">' + (cells[i].value || "") + "</div>";
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll(".sudoku-cell").forEach(function (el) {
+      el.addEventListener("click", function () {
+        selectedIndex = parseInt(el.getAttribute("data-index"), 10);
+        renderGrid();
+      });
+    });
+  }
+
+  function tick() {
+    elapsedSeconds++;
+    hudTime.textContent = formatTime(elapsedSeconds);
+  }
+
+  function startDifficulty(diff) {
+    currentDiff = diff;
+    showScreen("loading");
+    setTimeout(function () {
+      var gen = generatePuzzle(DIFFICULTY_CLUES[diff]);
+      solution = gen.solution;
+      cells = gen.puzzle.map(function (v) { return { value: v, given: v !== 0 }; });
+      selectedIndex = null;
+      elapsedSeconds = 0;
+      hintsLeft = HINTS_BY_DIFFICULTY[diff];
+      hudTime.textContent = "00:00";
+      hudDiff.textContent = DIFFICULTY_LABEL[diff];
+      hudHint.textContent = String(hintsLeft);
+      hintBtn.disabled = false;
+      playing = true;
+      renderGrid();
+      showScreen("play");
+      clearInterval(timerId);
+      timerId = setInterval(tick, 1000);
+    }, 60);
+  }
+
+  function handleNumpadInput(value) {
+    if (!playing || selectedIndex === null) return;
+    if (cells[selectedIndex].given) return;
+    cells[selectedIndex].value = value;
+    renderGrid();
+    checkWin();
+  }
+
+  function useHint() {
+    if (!playing || hintsLeft <= 0) return;
+    var idx = selectedIndex;
+    if (idx === null || cells[idx].given || cells[idx].value === solution[idx]) {
+      var emptyIdxs = [];
+      for (var i = 0; i < 81; i++) { if (!cells[i].given && cells[i].value !== solution[i]) emptyIdxs.push(i); }
+      if (emptyIdxs.length === 0) return;
+      idx = emptyIdxs[Math.floor(Math.random() * emptyIdxs.length)];
+    }
+    cells[idx].value = solution[idx];
+    cells[idx].given = true;
+    hintsLeft--;
+    hudHint.textContent = String(hintsLeft);
+    if (hintsLeft <= 0) hintBtn.disabled = true;
+    selectedIndex = idx;
+    renderGrid();
+    checkWin();
+  }
+
+  function checkWin() {
+    var allFilled = cells.every(function (c) { return c.value !== 0; });
+    if (!allFilled) return;
+    var conflicts = computeConflicts(cells);
+    if (Object.keys(conflicts).length > 0) return;
+    endGame();
+  }
+
+  function endGame() {
+    playing = false;
+    clearInterval(timerId);
+
+    var best = getBestTime(currentDiff);
+    var isNewBest = !best || elapsedSeconds < best;
+    if (isNewBest) setBestTime(currentDiff, elapsedSeconds);
+
+    resultTime.textContent = formatTime(elapsedSeconds);
+    resultDiff.textContent = DIFFICULTY_LABEL[currentDiff] + (isNewBest ? " · 신기록! 🏆" : "");
+    resultBest.textContent = "최고 기록: " + formatTime(isNewBest ? elapsedSeconds : best);
+
+    showScreen("result");
+  }
+
+  function quitToStart() {
+    if (playing && !confirm("현재 게임을 종료하고 난이도를 다시 선택할까요?")) return;
+    playing = false;
+    clearInterval(timerId);
+    renderBestTimes();
+    showScreen("start");
+  }
+
+  document.querySelectorAll(".diff-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { startDifficulty(btn.getAttribute("data-diff")); });
+  });
+  document.querySelectorAll(".numpad-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { handleNumpadInput(parseInt(btn.getAttribute("data-num"), 10)); });
+  });
+  hintBtn.addEventListener("click", useHint);
+  document.getElementById("btn-quit").addEventListener("click", quitToStart);
+  document.getElementById("btn-new-game").addEventListener("click", function () { startDifficulty(currentDiff); });
+
+  document.addEventListener("keydown", function (e) {
+    if (!playing || selectedIndex === null) return;
+    if (e.key >= "1" && e.key <= "9") { handleNumpadInput(parseInt(e.key, 10)); }
+    else if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") { handleNumpadInput(0); }
+  });
+
+  /* ===================== 공유 기능 ===================== */
+  // 카카오 디벨로퍼스(https://developers.kakao.com)에서 발급받은 JavaScript 키를 아래에 입력하면
+  // 카카오톡 공유가 이미지·버튼이 포함된 카드 형태로 업그레이드됩니다. 비워두면 안전한 대체 동작으로 작동합니다.
+  var KAKAO_JS_KEY = "";
+
+  var shareToast = document.getElementById("share-toast");
+  var toastTimeoutId = null;
+
+  function showToast(msg) {
+    shareToast.textContent = msg;
+    shareToast.classList.add("show");
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = setTimeout(function () { shareToast.classList.remove("show"); }, 1800);
+  }
+
+  function getShareText() {
+    return "🔢 스도쿠 " + DIFFICULTY_LABEL[currentDiff] + "를 " + formatTime(elapsedSeconds) + "만에 클리어했어요! 너도 도전해볼래?";
+  }
+  function getShareUrl() { return window.location.href.split("#")[0]; }
+
+  function fallbackCopy(text, message) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand("copy"); showToast(message || "링크가 복사되었어요!"); }
+    catch (e) { showToast("복사에 실패했어요."); }
+    document.body.removeChild(ta);
+  }
+
+  function copyLink(message) {
+    var url = getShareUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { showToast(message || "링크가 복사되었어요!"); })
+        .catch(function () { fallbackCopy(url, message); });
+    } else {
+      fallbackCopy(url, message);
+    }
+  }
+
+  function shareNative() {
+    if (!navigator.share) return;
+    navigator.share({ title: "스도쿠", text: getShareText(), url: getShareUrl() }).catch(function () { });
+  }
+
+  function loadKakaoSdk(cb) {
+    if (window.Kakao) { cb(); return; }
+    var s = document.createElement("script");
+    s.src = "https://developers.kakao.com/sdk/js/kakao.js";
+    s.onload = cb;
+    s.onerror = function () { showToast("카카오 SDK를 불러오지 못했어요."); };
+    document.head.appendChild(s);
+  }
+
+  function shareKakao() {
+    if (!KAKAO_JS_KEY) {
+      if (navigator.share) { shareNative(); }
+      else { copyLink("링크가 복사됐어요! 카카오톡 채팅방에 붙여넣어보세요."); }
+      return;
+    }
+    loadKakaoSdk(function () {
+      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+      window.Kakao.Share.sendDefault({
+        objectType: "text",
+        text: getShareText(),
+        link: { mobileWebUrl: getShareUrl(), webUrl: getShareUrl() }
+      });
+    });
+  }
+
+  function shareTwitter() {
+    var url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(getShareText()) + "&url=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+  function shareFacebook() {
+    var url = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+
+  document.getElementById("btn-share-kakao").addEventListener("click", shareKakao);
+  document.getElementById("btn-share-twitter").addEventListener("click", shareTwitter);
+  document.getElementById("btn-share-facebook").addEventListener("click", shareFacebook);
+  document.getElementById("btn-share-copy").addEventListener("click", function () { copyLink(); });
+
+  var nativeShareBtn = document.getElementById("btn-share-native");
+  if (navigator.share) { nativeShareBtn.addEventListener("click", shareNative); }
+  else { nativeShareBtn.style.display = "none"; }
+
+  renderBestTimes();
+})();
+</script>
+</body>
+</html>
