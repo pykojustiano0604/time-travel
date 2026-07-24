@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ 반응속도 테스트 | 시간순삭 미니게임</title>
+<meta name="description" content="초록불이 켜지는 순간 클릭해서 밀리초(ms) 단위로 반응속도를 측정하는 테스트. 친구와 정확한 숫자로 승부해보세요.">
+<meta property="og:title" content="⚡ 반응속도 테스트 | 시간순삭">
+<meta property="og:description" content="당신의 반응속도는 몇 ms? 5라운드 평균으로 정확하게 측정해보세요!">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #fff8f2;
+    --surface: #ffffff;
+    --primary: #ff7a4d;
+    --primary-dark: #e8603a;
+    --secondary: #4d8dff;
+    --text: #2b2320;
+    --text-light: #6b6058;
+    --border: #f0e0d4;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .game-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 28px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .top-bar { display: flex; align-items: center; justify-content: space-between; }
+  .top-bar .title { font-size: 1.15rem; font-weight: 800; color: var(--primary-dark); }
+
+  .ad-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed #ffd9c2;
+    border-radius: 12px;
+    background: #fffaf6;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 6px;
+  }
+  .ad-slot.banner { min-height: 50px; max-width: 320px; margin: 0 auto; }
+  .ad-slot.rectangle { min-height: 250px; max-width: 300px; margin: 10px auto 0; display: none; }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 6px 18px rgba(43, 35, 32, 0.10);
+    padding: 22px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  #screen-start { align-items: center; justify-content: center; text-align: center; gap: 12px; }
+  #screen-start .emoji-big { font-size: 3.4rem; }
+  #screen-start h1 { font-size: 1.4rem; margin: 0; }
+  #screen-start p { color: var(--text-light); font-size: 0.92rem; margin: 0; line-height: 1.6; }
+  .best-score { font-size: 0.9rem; color: var(--text-light); font-weight: 700; }
+
+  #screen-play { gap: 12px; }
+
+  .hud {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff1e8;
+    border-radius: 14px;
+    padding: 10px 16px;
+  }
+  .hud .stat { text-align: center; }
+  .hud .stat .num { font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); }
+  .hud .stat .label { font-size: 0.7rem; color: var(--text-light); font-weight: 700; }
+
+  .test-box {
+    flex: 1;
+    min-height: 300px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    padding: 24px;
+    line-height: 1.5;
+    white-space: pre-line;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 0.08s ease;
+  }
+  .test-box.ready { background: #e0473f; }
+  .test-box.go { background: #27ae60; }
+  .test-box.toofast { background: #8a5a00; }
+  .test-box.roundresult { background: var(--secondary); font-size: 2.2rem; }
+
+  #screen-result { align-items: center; justify-content: center; text-align: center; gap: 6px; }
+  #screen-result .emoji-big { font-size: 3rem; }
+  #screen-result h2 { margin: 4px 0 0; font-size: 1.3rem; }
+  #result-avg { font-size: 2.3rem; font-weight: 800; color: var(--primary-dark); margin: 2px 0; }
+  #result-tier { font-size: 0.98rem; color: var(--text); font-weight: 700; }
+  #result-detail { font-size: 0.85rem; color: var(--text-light); }
+  #result-best { font-size: 0.85rem; color: var(--text-light); }
+
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+    touch-action: manipulation;
+  }
+  .btn:active { background: var(--primary-dark); transform: scale(0.98); }
+
+  .share-section { margin-top: 14px; width: 100%; }
+  .share-label { font-size: 0.82rem; color: var(--text-light); margin-bottom: 10px; }
+  .share-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; border-radius: 999px; padding: 11px 18px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    touch-action: manipulation; font-family: inherit;
+  }
+  .share-btn.kakao { background: #fee500; color: #3c1e1e; }
+  .share-btn.native { background: var(--secondary); color: #fff; }
+  .share-btn.small { padding: 8px 14px; font-size: 0.82rem; background: #f5f0eb; color: var(--text); }
+  .share-btn:active { transform: scale(0.96); }
+
+  .share-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2b2320; color: #fff; padding: 10px 20px; border-radius: 999px;
+    font-size: 0.85rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; z-index: 999; white-space: nowrap;
+  }
+  .share-toast.show { opacity: 1; }
+
+  .foot-note { text-align: center; font-size: 0.78rem; color: var(--text-light); }
+  .foot-note a { color: var(--secondary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="game-shell">
+  <div class="top-bar">
+    <div class="title">⚡ 반응속도 테스트</div>
+  </div>
+
+  <!-- 광고 영역 1: 상단 배너 -->
+  <div class="ad-slot banner">광고 영역 (배너, 320x50)</div>
+
+  <div class="game-card">
+    <div id="screen-start" class="screen active">
+      <div class="emoji-big">⚡</div>
+      <h1>반응속도 테스트</h1>
+      <p>화면이 초록색으로 바뀌는 순간<br>최대한 빨리 클릭하세요.<br>5라운드 평균으로 측정해요!</p>
+      <div class="best-score">최고 평균 기록: <span id="best-score-display">-</span></div>
+      <button class="btn" id="btn-start">테스트 시작</button>
+    </div>
+
+    <div id="screen-play" class="screen">
+      <div class="hud">
+        <div class="stat"><div class="num" id="hud-round">1 / 5</div><div class="label">라운드</div></div>
+      </div>
+      <div class="test-box ready" id="test-box">준비하세요...</div>
+    </div>
+
+    <div id="screen-result" class="screen">
+      <div class="emoji-big">🎉</div>
+      <h2>테스트 완료!</h2>
+      <div id="result-avg">0ms</div>
+      <div id="result-tier"></div>
+      <div id="result-detail"></div>
+      <div id="result-best"></div>
+      <button class="btn" id="btn-restart">다시 하기</button>
+
+      <div class="share-section">
+        <div class="share-label">기록을 친구에게 자랑해보세요!</div>
+        <div class="share-row">
+          <button class="share-btn kakao" id="btn-share-kakao">💬 카카오톡</button>
+          <button class="share-btn native" id="btn-share-native">📤 공유하기</button>
+        </div>
+        <div class="share-row">
+          <button class="share-btn small" id="btn-share-twitter">🐦 X</button>
+          <button class="share-btn small" id="btn-share-facebook">📘 페이스북</button>
+          <button class="share-btn small" id="btn-share-copy">🔗 링크 복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 광고 영역 2: 결과 화면 사각형 배너 -->
+  <div class="ad-slot rectangle" id="ad-result">광고 영역 (사각형, 300x250)</div>
+
+  <p class="foot-note">⏱️ 시간순삭의 미니게임 &middot; <a href="index.html">다른 콘텐츠 보러 가기</a></p>
+</div>
+
+<div class="share-toast" id="share-toast"></div>
+
+<script>
+(function () {
+  var ROUND_COUNT = 5;
+  var BEST_KEY = "reactiontest_best_avg";
+
+  var screens = {
+    start: document.getElementById("screen-start"),
+    play: document.getElementById("screen-play"),
+    result: document.getElementById("screen-result")
+  };
+  var adResult = document.getElementById("ad-result");
+  var bestScoreDisplay = document.getElementById("best-score-display");
+  var hudRound = document.getElementById("hud-round");
+  var testBox = document.getElementById("test-box");
+  var resultAvg = document.getElementById("result-avg");
+  var resultTier = document.getElementById("result-tier");
+  var resultDetail = document.getElementById("result-detail");
+  var resultBest = document.getElementById("result-best");
+
+  var state = "idle"; // idle | ready | go | toofast | roundresult
+  var times = [];
+  var goTimestamp = 0;
+  var pendingTimeoutId = null;
+  var lastAvg = 0;
+
+  function showScreen(name) {
+    Object.keys(screens).forEach(function (key) {
+      screens[key].classList.toggle("active", key === name);
+    });
+    adResult.style.display = (name === "result") ? "flex" : "none";
+  }
+
+  function getBest() {
+    try { var v = parseInt(localStorage.getItem(BEST_KEY), 10); return isNaN(v) ? null : v; } catch (e) { return null; }
+  }
+  function setBest(v) {
+    try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) { /* 저장 실패 시 무시 */ }
+  }
+
+  function vibrate(ms) {
+    try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* 미지원 브라우저 무시 */ }
+  }
+
+  function updateBoxDisplay() {
+    testBox.className = "test-box " + state;
+    if (state === "ready") testBox.textContent = "초록색이 되면 클릭하세요...";
+    else if (state === "go") testBox.textContent = "지금 클릭!";
+    else if (state === "toofast") testBox.textContent = "너무 빨랐어요! 😅\n다시 준비할게요";
+  }
+
+  function startRound() {
+    state = "ready";
+    updateBoxDisplay();
+    hudRound.textContent = (times.length + 1) + " / " + ROUND_COUNT;
+    var delay = 1500 + Math.random() * 2500;
+    pendingTimeoutId = setTimeout(function () {
+      state = "go";
+      goTimestamp = performance.now();
+      updateBoxDisplay();
+    }, delay);
+  }
+
+  function handleBoxClick() {
+    if (state === "ready") {
+      clearTimeout(pendingTimeoutId);
+      state = "toofast";
+      updateBoxDisplay();
+      setTimeout(startRound, 1200);
+    } else if (state === "go") {
+      var rt = Math.round(performance.now() - goTimestamp);
+      times.push(rt);
+      vibrate(10);
+      state = "roundresult";
+      testBox.className = "test-box roundresult";
+      testBox.textContent = rt + "ms!";
+      setTimeout(function () {
+        if (times.length >= ROUND_COUNT) { finishTest(); }
+        else { startRound(); }
+      }, 900);
+    }
+    /* idle/toofast/roundresult 상태의 클릭은 무시 */
+  }
+
+  function finishTest() {
+    var sum = times.reduce(function (a, b) { return a + b; }, 0);
+    var avg = Math.round(sum / times.length);
+    var best = Math.min.apply(null, times);
+    lastAvg = avg;
+
+    var storedBest = getBest();
+    var isNewBest = !storedBest || avg < storedBest;
+    if (isNewBest) setBest(avg);
+
+    var tier;
+    if (avg < 180) tier = "번개 같은 반응속도! ⚡👑";
+    else if (avg < 220) tier = "엘리트 수준이에요! 🔥";
+    else if (avg < 280) tier = "평균보다 빨라요! 👍";
+    else if (avg < 350) tier = "평균적인 반응속도예요 🙂";
+    else tier = "조금 더 연습해봐요! 💪";
+
+    resultAvg.textContent = avg + "ms";
+    resultTier.textContent = tier + (isNewBest ? " · 신기록! 🏆" : "");
+    resultDetail.textContent = "가장 빠른 라운드: " + best + "ms · 전체: " + times.join("ms, ") + "ms";
+    resultBest.textContent = "최고 평균 기록: " + (isNewBest ? avg : storedBest) + "ms";
+
+    showScreen("result");
+  }
+
+  function startTest() {
+    times = [];
+    showScreen("play");
+    startRound();
+  }
+
+  testBox.addEventListener("click", handleBoxClick);
+  document.getElementById("btn-start").addEventListener("click", startTest);
+  document.getElementById("btn-restart").addEventListener("click", startTest);
+
+  var best0 = getBest();
+  bestScoreDisplay.textContent = best0 ? best0 + "ms" : "-";
+
+  /* ===================== 공유 기능 ===================== */
+  // 카카오 디벨로퍼스(https://developers.kakao.com)에서 발급받은 JavaScript 키를 아래에 입력하면
+  // 카카오톡 공유가 이미지·버튼이 포함된 카드 형태로 업그레이드됩니다. 비워두면 안전한 대체 동작으로 작동합니다.
+  var KAKAO_JS_KEY = "";
+
+  var shareToast = document.getElementById("share-toast");
+  var toastTimeoutId = null;
+
+  function showToast(msg) {
+    shareToast.textContent = msg;
+    shareToast.classList.add("show");
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = setTimeout(function () { shareToast.classList.remove("show"); }, 1800);
+  }
+
+  function getShareText() {
+    return "⚡ 반응속도 테스트에서 평균 " + lastAvg + "ms 나왔어요! 너도 도전해볼래?";
+  }
+  function getShareUrl() { return window.location.href.split("#")[0]; }
+
+  function fallbackCopy(text, message) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand("copy"); showToast(message || "링크가 복사되었어요!"); }
+    catch (e) { showToast("복사에 실패했어요."); }
+    document.body.removeChild(ta);
+  }
+
+  function copyLink(message) {
+    var url = getShareUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { showToast(message || "링크가 복사되었어요!"); })
+        .catch(function () { fallbackCopy(url, message); });
+    } else {
+      fallbackCopy(url, message);
+    }
+  }
+
+  function shareNative() {
+    if (!navigator.share) return;
+    navigator.share({ title: "반응속도 테스트", text: getShareText(), url: getShareUrl() }).catch(function () { });
+  }
+
+  function loadKakaoSdk(cb) {
+    if (window.Kakao) { cb(); return; }
+    var s = document.createElement("script");
+    s.src = "https://developers.kakao.com/sdk/js/kakao.js";
+    s.onload = cb;
+    s.onerror = function () { showToast("카카오 SDK를 불러오지 못했어요."); };
+    document.head.appendChild(s);
+  }
+
+  function shareKakao() {
+    if (!KAKAO_JS_KEY) {
+      if (navigator.share) { shareNative(); }
+      else { copyLink("링크가 복사됐어요! 카카오톡 채팅방에 붙여넣어보세요."); }
+      return;
+    }
+    loadKakaoSdk(function () {
+      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+      window.Kakao.Share.sendDefault({
+        objectType: "text",
+        text: getShareText(),
+        link: { mobileWebUrl: getShareUrl(), webUrl: getShareUrl() }
+      });
+    });
+  }
+
+  function shareTwitter() {
+    var url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(getShareText()) + "&url=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+  function shareFacebook() {
+    var url = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+
+  document.getElementById("btn-share-kakao").addEventListener("click", shareKakao);
+  document.getElementById("btn-share-twitter").addEventListener("click", shareTwitter);
+  document.getElementById("btn-share-facebook").addEventListener("click", shareFacebook);
+  document.getElementById("btn-share-copy").addEventListener("click", function () { copyLink(); });
+
+  var nativeShareBtn = document.getElementById("btn-share-native");
+  if (navigator.share) { nativeShareBtn.addEventListener("click", shareNative); }
+  else { nativeShareBtn.style.display = "none"; }
+})();
+</script>
+</body>
+</html>
