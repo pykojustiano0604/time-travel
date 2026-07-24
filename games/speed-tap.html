@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ 스피드 탭 챌린지 | 순발력 미니게임</title>
+<meta name="description" content="화면에 나타나는 타겟을 최대한 빨리 탭하는 순발력 미니게임. 한 판에 60초, 회원가입도 앱 설치도 필요 없어요.">
+<style>
+  :root {
+    --bg: #fff8f2;
+    --surface: #ffffff;
+    --primary: #ff7a4d;
+    --primary-dark: #e8603a;
+    --secondary: #4d8dff;
+    --text: #2b2320;
+    --text-light: #6b6058;
+    --border: #f0e0d4;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .game-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 28px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar .title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+  }
+
+  .top-bar .best {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    font-weight: 700;
+  }
+
+  .ad-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed #ffd9c2;
+    border-radius: 12px;
+    background: #fffaf6;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 6px;
+  }
+
+  .ad-slot.banner { min-height: 50px; max-width: 320px; margin: 0 auto; }
+  .ad-slot.rectangle { min-height: 250px; max-width: 300px; margin: 10px auto 0; display: none; }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 6px 18px rgba(43, 35, 32, 0.10);
+    padding: 22px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* 시작 화면 */
+  #screen-start { align-items: center; justify-content: center; text-align: center; gap: 14px; }
+  #screen-start .emoji-big { font-size: 3.6rem; }
+  #screen-start h1 { font-size: 1.4rem; margin: 0; }
+  #screen-start p { color: var(--text-light); font-size: 0.92rem; margin: 0; line-height: 1.6; }
+
+  /* 카운트다운 화면 */
+  #screen-countdown { align-items: center; justify-content: center; }
+  #countdown-num { font-size: 5rem; font-weight: 800; color: var(--primary-dark); }
+
+  /* 플레이 화면 */
+  #screen-play { gap: 12px; }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff1e8;
+    border-radius: 14px;
+    padding: 12px 18px;
+  }
+
+  .hud .stat { text-align: center; }
+  .hud .stat .num { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); }
+  .hud .stat .label { font-size: 0.72rem; color: var(--text-light); font-weight: 700; }
+
+  .arena {
+    position: relative;
+    flex: 1;
+    min-height: 320px;
+    max-height: 420px;
+    background: repeating-linear-gradient(45deg, #fff8f2, #fff8f2 10px, #fffaf6 10px, #fffaf6 20px);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  .target {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffb088, var(--primary) 70%);
+    box-shadow: 0 4px 12px rgba(255, 122, 77, 0.45);
+    border: none;
+    cursor: pointer;
+    animation: pop-in 0.12s ease-out;
+    padding: 0;
+  }
+
+  @keyframes pop-in {
+    from { transform: scale(0.4); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .float-plus {
+    position: absolute;
+    font-weight: 800;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    pointer-events: none;
+    animation: float-up 0.5s ease-out forwards;
+  }
+
+  @keyframes float-up {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-30px); opacity: 0; }
+  }
+
+  /* 결과 화면 */
+  #screen-result { align-items: center; justify-content: center; text-align: center; gap: 10px; }
+  #screen-result .emoji-big { font-size: 3rem; }
+  #screen-result h2 { margin: 4px 0 0; font-size: 1.3rem; }
+  #result-score { font-size: 2.2rem; font-weight: 800; color: var(--primary-dark); margin: 4px 0; }
+  #result-tier { font-size: 0.98rem; color: var(--text); font-weight: 700; }
+  #result-best { font-size: 0.85rem; color: var(--text-light); }
+
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+    touch-action: manipulation;
+  }
+
+  .btn:active { background: var(--primary-dark); transform: scale(0.98); }
+
+  .foot-note {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-light);
+  }
+
+  .foot-note a { color: var(--secondary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="game-shell">
+  <div class="top-bar">
+    <div class="title">⚡ 스피드 탭 챌린지</div>
+    <div class="best">최고 기록: <span id="best-display">0</span>개</div>
+  </div>
+
+  <!-- 광고 영역 1: 상단 배너. 실제 게재 시 이 div 안을 광고 코드로 채우세요 -->
+  <div class="ad-slot banner">광고 영역 (배너, 320x50)</div>
+
+  <div class="game-card">
+    <div id="screen-start" class="screen active">
+      <div class="emoji-big">⚡</div>
+      <h1>스피드 탭 챌린지</h1>
+      <p>60초 동안 나타나는 타겟을<br>최대한 많이 탭하세요!<br>시간이 지날수록 점점 빨라져요.</p>
+      <button class="btn" id="btn-start">게임 시작</button>
+    </div>
+
+    <div id="screen-countdown" class="screen">
+      <div id="countdown-num">3</div>
+    </div>
+
+    <div id="screen-play" class="screen">
+      <div class="hud">
+        <div class="stat"><div class="num" id="hud-time">60</div><div class="label">남은 시간</div></div>
+        <div class="stat"><div class="num" id="hud-score">0</div><div class="label">점수</div></div>
+      </div>
+      <div class="arena" id="arena"></div>
+    </div>
+
+    <div id="screen-result" class="screen">
+      <div class="emoji-big">🎉</div>
+      <h2>게임 종료!</h2>
+      <div id="result-score">0개</div>
+      <div id="result-tier"></div>
+      <div id="result-best"></div>
+      <button class="btn" id="btn-restart">다시 하기</button>
+    </div>
+  </div>
+
+  <!-- 광고 영역 2: 결과 화면 사각형 배너. screen-result가 보일 때 노출됨 -->
+  <div class="ad-slot rectangle" id="ad-result">광고 영역 (사각형, 300x250)</div>
+
+  <p class="foot-note">⏱️ 시간순삭의 미니게임 &middot; <a href="index.html">다른 콘텐츠 보러 가기</a></p>
+</div>
+
+<script>
+(function () {
+  var BEST_KEY = "speedtap_best_score";
+  var GAME_SECONDS = 60;
+
+  var screens = {
+    start: document.getElementById("screen-start"),
+    countdown: document.getElementById("screen-countdown"),
+    play: document.getElementById("screen-play"),
+    result: document.getElementById("screen-result")
+  };
+  var adResult = document.getElementById("ad-result");
+  var arena = document.getElementById("arena");
+  var hudTime = document.getElementById("hud-time");
+  var hudScore = document.getElementById("hud-score");
+  var countdownNum = document.getElementById("countdown-num");
+  var bestDisplay = document.getElementById("best-display");
+  var resultScore = document.getElementById("result-score");
+  var resultTier = document.getElementById("result-tier");
+  var resultBest = document.getElementById("result-best");
+
+  var score = 0;
+  var timeLeft = GAME_SECONDS;
+  var timerId = null;
+  var targetTimeoutId = null;
+  var spawnTimeoutId = null;
+  var playing = false;
+
+  function getBest() {
+    try { return parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) { return 0; }
+  }
+  function setBest(v) {
+    try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) { /* 저장 실패 시 무시 */ }
+  }
+
+  function showScreen(name) {
+    Object.keys(screens).forEach(function (key) {
+      screens[key].classList.toggle("active", key === name);
+    });
+    adResult.style.display = (name === "result") ? "flex" : "none";
+  }
+
+  function vibrate(ms) {
+    try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* 미지원 브라우저 무시 */ }
+  }
+
+  function spawnTarget() {
+    if (!playing) return;
+
+    var rect = arena.getBoundingClientRect();
+    var size = Math.max(46, 72 - score * 0.6);
+    var lifespan = Math.max(430, 1100 - score * 18);
+
+    var maxX = Math.max(0, rect.width - size);
+    var maxY = Math.max(0, rect.height - size);
+    var x = Math.random() * maxX;
+    var y = Math.random() * maxY;
+
+    var target = document.createElement("button");
+    target.className = "target";
+    target.style.width = size + "px";
+    target.style.height = size + "px";
+    target.style.left = x + "px";
+    target.style.top = y + "px";
+    target.textContent = "🎯";
+    target.style.fontSize = (size * 0.45) + "px";
+    arena.appendChild(target);
+
+    var hit = false;
+
+    function remove() {
+      if (target.parentNode) target.parentNode.removeChild(target);
+    }
+
+    target.addEventListener("click", function (e) {
+      if (hit || !playing) return;
+      hit = true;
+      score++;
+      hudScore.textContent = score;
+      vibrate(12);
+
+      var plus = document.createElement("div");
+      plus.className = "float-plus";
+      plus.textContent = "+1";
+      plus.style.left = (x + size / 2 - 10) + "px";
+      plus.style.top = y + "px";
+      arena.appendChild(plus);
+      setTimeout(function () {
+        if (plus.parentNode) plus.parentNode.removeChild(plus);
+      }, 500);
+
+      clearTimeout(targetTimeoutId);
+      remove();
+      spawnTimeoutId = setTimeout(spawnTarget, 120 + Math.random() * 200);
+    });
+
+    targetTimeoutId = setTimeout(function () {
+      if (hit) return;
+      remove();
+      if (playing) spawnTimeoutId = setTimeout(spawnTarget, 80 + Math.random() * 150);
+    }, lifespan);
+  }
+
+  function tick() {
+    timeLeft--;
+    hudTime.textContent = Math.max(0, timeLeft);
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  function startCountdown() {
+    showScreen("countdown");
+    var n = 3;
+    countdownNum.textContent = n;
+    var cdId = setInterval(function () {
+      n--;
+      if (n <= 0) {
+        clearInterval(cdId);
+        startGame();
+      } else {
+        countdownNum.textContent = n;
+      }
+    }, 500);
+  }
+
+  function startGame() {
+    score = 0;
+    timeLeft = GAME_SECONDS;
+    hudScore.textContent = "0";
+    hudTime.textContent = String(GAME_SECONDS);
+    arena.innerHTML = "";
+    playing = true;
+    showScreen("play");
+    timerId = setInterval(tick, 1000);
+    spawnTarget();
+  }
+
+  function endGame() {
+    playing = false;
+    clearInterval(timerId);
+    clearTimeout(targetTimeoutId);
+    clearTimeout(spawnTimeoutId);
+    arena.innerHTML = "";
+
+    var best = getBest();
+    if (score > best) {
+      best = score;
+      setBest(best);
+    }
+    bestDisplay.textContent = best;
+
+    var tier;
+    if (score < 10) tier = "다음엔 더 빠르게! 💪";
+    else if (score < 20) tier = "제법인데요? 👍";
+    else if (score < 30) tier = "순발력 대박! 🔥";
+    else tier = "번개 반사신경! ⚡👑";
+
+    resultScore.textContent = score + "개";
+    resultTier.textContent = tier;
+    resultBest.textContent = "최고 기록: " + best + "개";
+
+    showScreen("result");
+  }
+
+  document.getElementById("btn-start").addEventListener("click", startCountdown);
+  document.getElementById("btn-restart").addEventListener("click", startCountdown);
+
+  bestDisplay.textContent = getBest();
+})();
+</script>
+</body>
+</html>
