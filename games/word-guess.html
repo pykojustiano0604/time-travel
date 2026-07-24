@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🔠 오늘의 단어 | 시간순삭 미니게임</title>
+<meta name="description" content="매일 자정에 바뀌는 오늘의 단어를 다섯 번 안에 맞혀보는 한글 단어 게임. 초록/노랑/회색으로 힌트를 받으며 정답을 추리해보세요.">
+<meta property="og:title" content="🔠 오늘의 단어 | 시간순삭">
+<meta property="og:description" content="매일 바뀌는 한글 단어를 다섯 번 안에 맞혀보세요! 오늘 나는 몇 번 만에 맞혔을까?">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #fff8f2;
+    --surface: #ffffff;
+    --primary: #ff7a4d;
+    --primary-dark: #e8603a;
+    --secondary: #4d8dff;
+    --text: #2b2320;
+    --text-light: #6b6058;
+    --border: #f0e0d4;
+    --green: #6aaa64;
+    --yellow: #c9b458;
+    --gray: #a8a49c;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+
+  .game-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 28px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .top-bar { display: flex; align-items: center; justify-content: space-between; }
+  .top-bar .title { font-size: 1.15rem; font-weight: 800; color: var(--primary-dark); }
+  .help-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 2px solid var(--border); background: #fff;
+    color: var(--text-light); font-weight: 800; font-size: 1rem;
+    cursor: pointer; touch-action: manipulation;
+  }
+
+  .ad-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed #ffd9c2;
+    border-radius: 12px;
+    background: #fffaf6;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 6px;
+  }
+  .ad-slot.banner { min-height: 50px; max-width: 320px; margin: 0 auto; }
+  .ad-slot.rectangle { min-height: 250px; max-width: 300px; margin: 10px auto 0; display: none; }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 6px 18px rgba(43, 35, 32, 0.10);
+    padding: 22px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stat-line {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 700;
+  }
+  .stat-line b { color: var(--primary-dark); font-size: 1rem; }
+
+  .board {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .board-row {
+    display: grid;
+    gap: 6px;
+  }
+
+  .tile {
+    aspect-ratio: 1 / 1;
+    width: 46px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text);
+    background: #fff;
+  }
+  .tile.filled { border-color: #d8c9bb; }
+  .tile.green { background: var(--green); border-color: var(--green); color: #fff; }
+  .tile.yellow { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+  .tile.gray { background: var(--gray); border-color: var(--gray); color: #fff; }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .input-row input {
+    flex: 1;
+    padding: 13px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  .input-row input:focus { outline: none; border-color: var(--primary); }
+  .input-row button {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    border: none;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-size: 0.98rem;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .input-row button:active { background: var(--primary-dark); }
+
+  .input-error {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--primary-dark);
+    font-weight: 700;
+    min-height: 1.2em;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--text-light);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend .dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+  .legend .dot.green { background: var(--green); }
+  .legend .dot.yellow { background: var(--yellow); }
+  .legend .dot.gray { background: var(--gray); }
+
+  #screen-result {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+  #screen-result.active { display: flex; }
+  #screen-result .emoji-big { font-size: 2.6rem; }
+  #screen-result h2 { margin: 4px 0 0; font-size: 1.25rem; }
+  #result-answer { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); }
+  #result-detail { font-size: 0.88rem; color: var(--text-light); }
+
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    padding: 12px 28px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.98rem;
+    touch-action: manipulation;
+  }
+  .btn:active { background: var(--primary-dark); transform: scale(0.98); }
+
+  .share-section { margin-top: 6px; width: 100%; }
+  .share-label { font-size: 0.82rem; color: var(--text-light); margin-bottom: 10px; }
+  .share-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; border-radius: 999px; padding: 11px 18px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    touch-action: manipulation; font-family: inherit;
+  }
+  .share-btn.kakao { background: #fee500; color: #3c1e1e; }
+  .share-btn.native { background: var(--secondary); color: #fff; }
+  .share-btn.small { padding: 8px 14px; font-size: 0.82rem; background: #f5f0eb; color: var(--text); }
+  .share-btn:active { transform: scale(0.96); }
+
+  .share-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2b2320; color: #fff; padding: 10px 20px; border-radius: 999px;
+    font-size: 0.85rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; z-index: 999; white-space: nowrap;
+  }
+  .share-toast.show { opacity: 1; }
+
+  .foot-note { text-align: center; font-size: 0.78rem; color: var(--text-light); }
+  .foot-note a { color: var(--secondary); text-decoration: none; }
+
+  /* 게임 방법 모달 */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(43,35,32,0.55);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 1000;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 20px; padding: 26px 22px;
+    max-width: 360px; width: 100%; text-align: center;
+  }
+  .modal-box h3 { margin: 0 0 8px; font-size: 1.15rem; }
+  .modal-box p { font-size: 0.88rem; color: var(--text-light); line-height: 1.6; margin: 0 0 16px; }
+  .modal-example { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .modal-example .tile { width: 40px; }
+  .modal-box .legend { margin-bottom: 16px; }
+  .modal-box .btn { width: 100%; background: #f0e0d4; color: var(--text); }
+  .modal-box .btn:active { background: #e0cdbc; }
+</style>
+</head>
+<body>
+
+<div class="game-shell">
+  <div class="top-bar">
+    <div class="title">🔠 오늘의 단어</div>
+    <button class="help-btn" id="btn-help">?</button>
+  </div>
+
+  <!-- 광고 영역 1: 상단 배너 -->
+  <div class="ad-slot banner">광고 영역 (배너, 320x50)</div>
+
+  <div class="game-card">
+    <div id="screen-play">
+      <div class="stat-line">
+        <div>총 성공 <b id="stat-wins">0</b></div>
+        <div>연속 성공 <b id="stat-streak">0</b></div>
+        <div>시도 <b id="stat-attempt">0</b>/5</div>
+      </div>
+
+      <div class="board" id="board"></div>
+
+      <div class="input-row">
+        <input type="text" id="guess-input" placeholder="정답을 입력하세요" maxlength="6">
+        <button id="btn-submit">확인</button>
+      </div>
+      <div class="input-error" id="input-error"></div>
+
+      <div class="legend">
+        <span><span class="dot green"></span>정답</span>
+        <span><span class="dot yellow"></span>잘못된 자리</span>
+        <span><span class="dot gray"></span>미포함</span>
+      </div>
+    </div>
+
+    <div id="screen-result">
+      <div class="emoji-big" id="result-emoji">🎉</div>
+      <h2 id="result-title">정답입니다!</h2>
+      <div id="result-answer"></div>
+      <div id="result-detail"></div>
+
+      <div class="share-section">
+        <div class="share-label">오늘의 기록을 공유해보세요!</div>
+        <div class="share-row">
+          <button class="share-btn kakao" id="btn-share-kakao">💬 카카오톡</button>
+          <button class="share-btn native" id="btn-share-native">📤 공유하기</button>
+        </div>
+        <div class="share-row">
+          <button class="share-btn small" id="btn-share-twitter">🐦 X</button>
+          <button class="share-btn small" id="btn-share-facebook">📘 페이스북</button>
+          <button class="share-btn small" id="btn-share-copy">🔗 링크 복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 광고 영역 2: 결과 화면 사각형 배너 -->
+  <div class="ad-slot rectangle" id="ad-result">광고 영역 (사각형, 300x250)</div>
+
+  <p class="foot-note">⏱️ 시간순삭의 미니게임 &middot; <a href="index.html">다른 콘텐츠 보러 가기</a></p>
+</div>
+
+<div class="modal-overlay" id="help-modal">
+  <div class="modal-box">
+    <h3>게임 방법</h3>
+    <p>오늘의 단어를 다섯 번 안에 맞혀보세요.</p>
+    <div class="modal-example">
+      <div class="tile green">ㄱ</div>
+      <div class="tile gray">ㅣ</div>
+      <div class="tile yellow">ㅁ</div>
+      <div class="tile gray">ㅊ</div>
+      <div class="tile gray">ㅣ</div>
+    </div>
+    <div class="legend">
+      <span><span class="dot green"></span>정답</span>
+      <span><span class="dot yellow"></span>잘못된 자리</span>
+      <span><span class="dot gray"></span>미포함</span>
+    </div>
+    <p>복합모음, 쌍자음, 겹받침은 풀어씁니다.<br>(예: 값 → ㄱ,ㅏ,ㅂ,ㅅ)</p>
+    <button class="btn" id="btn-help-close">확인</button>
+  </div>
+</div>
+
+<div class="share-toast" id="share-toast"></div>
+
+<script>
+(function () {
+  /* ===================== 한글 자모 분해 (풀어쓰기) ===================== */
+  var CHO = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+  var JUNG = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+  var JONG = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+  var JUNG_SPLIT = { "ㅘ":["ㅗ","ㅏ"], "ㅙ":["ㅗ","ㅐ"], "ㅚ":["ㅗ","ㅣ"], "ㅝ":["ㅜ","ㅓ"], "ㅞ":["ㅜ","ㅔ"], "ㅟ":["ㅜ","ㅣ"], "ㅢ":["ㅡ","ㅣ"] };
+  var CHO_SPLIT = { "ㄲ":["ㄱ","ㄱ"], "ㄸ":["ㄷ","ㄷ"], "ㅃ":["ㅂ","ㅂ"], "ㅆ":["ㅅ","ㅅ"], "ㅉ":["ㅈ","ㅈ"] };
+  var JONG_SPLIT = { "ㄲ":["ㄱ","ㄱ"], "ㅆ":["ㅅ","ㅅ"], "ㄳ":["ㄱ","ㅅ"], "ㄵ":["ㄴ","ㅈ"], "ㄶ":["ㄴ","ㅎ"], "ㄺ":["ㄹ","ㄱ"], "ㄻ":["ㄹ","ㅁ"], "ㄼ":["ㄹ","ㅂ"], "ㄽ":["ㄹ","ㅅ"], "ㄾ":["ㄹ","ㅌ"], "ㄿ":["ㄹ","ㅍ"], "ㅀ":["ㄹ","ㅎ"], "ㅄ":["ㅂ","ㅅ"] };
+
+  function decomposeSyllable(ch) {
+    var code = ch.charCodeAt(0) - 0xAC00;
+    if (code < 0 || code > 11171) return null;
+    var cho = Math.floor(code / (21 * 28));
+    var jung = Math.floor((code % (21 * 28)) / 28);
+    var jong = code % 28;
+    var choCh = CHO[cho], jungCh = JUNG[jung], jongCh = JONG[jong];
+    var result = (CHO_SPLIT[choCh] || [choCh]).concat(JUNG_SPLIT[jungCh] || [jungCh]);
+    if (jongCh) result = result.concat(JONG_SPLIT[jongCh] || [jongCh]);
+    return result;
+  }
+
+  function decomposeWord(word) {
+    var result = [];
+    for (var i = 0; i < word.length; i++) {
+      var d = decomposeSyllable(word[i]);
+      if (d) result = result.concat(d);
+      else result.push(word[i]);
+    }
+    return result;
+  }
+
+  /* ===================== 365일치 검증된 단어 목록 (자모 5~6칸) ===================== */
+  var WORD_LIST = [
+    "은색", "명절", "감독", "간장", "볼펜", "메달", "장미", "드럼", "젤리", "검사",
+    "해변", "한복", "늦잠", "들판", "우산", "회장", "폭염", "천개", "어머니", "형제",
+    "상장", "헬스", "이웃", "참새", "극장", "발목", "설렘", "노인", "잔치", "멜론",
+    "동료", "만개", "케이크", "목수", "하늘", "태풍", "다섯", "습도", "악보", "요리사",
+    "까치", "드론", "자판", "김밥", "장화", "기쁨", "봉투", "민박", "지역", "시집",
+    "동백", "벽지", "서랍", "은행", "안개", "학생", "바가지", "소설", "운동", "구름",
+    "가위", "종강", "수영", "계단", "커튼", "공기", "배꼽", "회식", "일곱", "등산",
+    "과일", "사탕", "리코더", "노력", "악어", "숫자", "처음", "식칼", "오전", "희망",
+    "녹차", "손녀", "양말", "필통", "아이스", "연필", "낮잠", "달력", "수건", "갈색",
+    "지붕", "만두", "봄날", "시작", "용기", "축구", "사이다", "주유소", "카메라", "트럭",
+    "바나나", "생강", "태양", "수첩", "남색", "제주도", "새벽", "거북", "참깨", "골프",
+    "판사", "양산", "딸기", "밤중", "숲속", "오뎅", "낚시", "미팅", "트로피", "라떼",
+    "팝콘", "골목", "우박", "어른", "맥주", "파전", "샴푸", "주말", "공작", "겨울",
+    "독서", "파랑", "농부", "교복", "상사", "친구", "문어", "백조", "취침", "다리미",
+    "도전", "거짓", "튤립", "첫째", "천둥", "평일", "교실", "스티커", "엽서", "간식",
+    "호박", "모니터", "여행", "반지", "침실", "항구", "자정", "장갑", "등교", "침대",
+    "동네", "책상", "열개", "택배", "바람", "물감", "작가", "시험", "우유차", "신부",
+    "창문", "들깨", "개구리", "여름", "사슴", "여섯", "나중", "상어", "날씨", "낙타",
+    "연인", "명함", "냄비", "치킨", "늑대", "망고", "국수", "당근", "우정", "정오",
+    "배터리", "사촌", "화채", "바게트", "놀람", "하양", "치약", "점심", "그릇", "소나기",
+    "강물", "포스터", "냉면", "직업", "실패", "탁구", "목련", "홍차", "과자", "인턴",
+    "앨범", "축제", "약속", "숙제", "입술", "채반", "가방", "배수구", "도장", "여덟",
+    "마무리", "테이프", "광주", "저녁", "등대", "반품", "캠핑", "설날", "황사", "이슬",
+    "손등", "국가", "시골", "주황", "접시", "기온", "출근", "대접", "코끝", "둘째",
+    "스캐너", "야식", "잠옷", "펜션", "리본", "피아노", "생선", "요일", "분노", "추석",
+    "상인", "애인", "대나무", "조끼", "퇴근", "사랑", "만화", "통학", "스피커", "화가",
+    "서점", "음악", "동물", "냉국", "걱정", "마우스", "식혜", "팔찌", "빙하", "걸레",
+    "장마", "손자", "별빛", "밤샘", "마을", "클립", "가을", "셋째", "국자", "약사",
+    "정장", "집안", "토끼", "가족", "마늘", "박스", "행복", "분홍", "스무디", "학교",
+    "주인", "고구마", "양파", "매화", "터널", "상자", "광대", "진심", "옷장", "상추",
+    "신발", "기린", "거실", "키보드", "김장", "당구", "회색", "리조트", "영화", "방학",
+    "슬픔", "군인", "레몬", "인천", "칫솔", "폭우", "등뼈", "데이트", "테니스", "회사",
+    "언덕", "김치", "식당", "산행", "계곡", "급식", "지갑", "남편", "하수구", "야근",
+    "거울", "소나무", "의사", "카펫", "조명", "지방", "검정", "결빙", "드라마", "별장",
+    "갯벌", "마당", "라면", "농구", "얼굴", "어깨", "울산", "촛불", "회의", "종지",
+    "배송", "서울", "안경", "폭포", "아홉", "턱선", "콜라", "번개", "소풍", "부산",
+    "린스", "잡채", "위장", "볼링", "참외", "전골", "키위", "수박", "승진", "화산",
+    "노랑", "음식", "부엌", "반장", "손님", "계란", "약국", "편지", "액자", "아침",
+    "휴학", "선배", "무릎", "전등", "백개", "택시", "사장", "금색", "석류", "손목",
+    "개학", "달빛", "발등", "사막", "사거리", "무지개", "시장", "호텔", "버섯", "의자",
+    "기상", "신랑", "튀김", "지우개", "삼촌", "성공", "그림", "생일", "훈장", "순대",
+    "업무", "비밀", "심장", "국화", "연극", "대전", "한파", "사과", "머핀", "도넛",
+    "폭설", "감자", "아버지", "마이크", "개강", "초록", "산책"
+  ];
+
+  /* ===================== 날짜 기반 오늘의 단어 ===================== */
+  var MAX_ATTEMPTS = 5;
+  var EPOCH = new Date(2026, 0, 1);
+
+  function getTodayDateStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+
+  function getDayIndex() {
+    var now = new Date();
+    var todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var diffDays = Math.round((todayLocal - EPOCH) / 86400000);
+    return ((diffDays % WORD_LIST.length) + WORD_LIST.length) % WORD_LIST.length;
+  }
+
+  var TODAY_WORD = WORD_LIST[getDayIndex()];
+  var ANSWER_JAMO = decomposeWord(TODAY_WORD);
+  var WORD_LEN = ANSWER_JAMO.length;
+
+  /* ===================== 상태 저장/불러오기 ===================== */
+  var PROGRESS_KEY = "wordguess_progress_" + getTodayDateStr();
+  var STATS_KEY = "wordguess_stats";
+
+  function loadProgress() {
+    try {
+      var raw = localStorage.getItem(PROGRESS_KEY);
+      return raw ? JSON.parse(raw) : { attempts: [], gameOver: false, won: false };
+    } catch (e) { return { attempts: [], gameOver: false, won: false }; }
+  }
+  function saveProgress(p) {
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) { /* 저장 실패 시 무시 */ }
+  }
+  function loadStats() {
+    try {
+      var raw = localStorage.getItem(STATS_KEY);
+      return raw ? JSON.parse(raw) : { played: 0, wins: 0, currentStreak: 0, maxStreak: 0 };
+    } catch (e) { return { played: 0, wins: 0, currentStreak: 0, maxStreak: 0 }; }
+  }
+  function saveStats(s) {
+    try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (e) { /* 저장 실패 시 무시 */ }
+  }
+
+  var progress = loadProgress();
+  var stats = loadStats();
+
+  /* ===================== 판정 로직 ===================== */
+  function scoreGuess(guessJamo, answerJamo) {
+    var n = answerJamo.length;
+    var result = new Array(n).fill("gray");
+    var remain = answerJamo.slice();
+    for (var i = 0; i < n; i++) {
+      if (guessJamo[i] === answerJamo[i]) { result[i] = "green"; remain[i] = null; }
+    }
+    for (var i = 0; i < n; i++) {
+      if (result[i] === "green") continue;
+      var idx = remain.indexOf(guessJamo[i]);
+      if (idx !== -1) { result[i] = "yellow"; remain[idx] = null; }
+    }
+    return result;
+  }
+
+  /* ===================== 렌더링 ===================== */
+  var boardEl = document.getElementById("board");
+  var inputEl = document.getElementById("guess-input");
+  var errorEl = document.getElementById("input-error");
+  var statWins = document.getElementById("stat-wins");
+  var statStreak = document.getElementById("stat-streak");
+  var statAttempt = document.getElementById("stat-attempt");
+  var screenPlay = document.getElementById("screen-play");
+  var screenResult = document.getElementById("screen-result");
+  var adResult = document.getElementById("ad-result");
+  var resultEmoji = document.getElementById("result-emoji");
+  var resultTitle = document.getElementById("result-title");
+  var resultAnswer = document.getElementById("result-answer");
+  var resultDetail = document.getElementById("result-detail");
+
+  function renderBoard() {
+    var html = "";
+    for (var r = 0; r < MAX_ATTEMPTS; r++) {
+      html += '<div class="board-row" style="grid-template-columns:repeat(' + WORD_LEN + ',1fr);">';
+      var attempt = progress.attempts[r];
+      for (var c = 0; c < WORD_LEN; c++) {
+        if (attempt) {
+          html += '<div class="tile filled ' + attempt.colors[c] + '">' + attempt.jamo[c] + '</div>';
+        } else {
+          html += '<div class="tile"></div>';
+        }
+      }
+      html += '</div>';
+    }
+    boardEl.innerHTML = html;
+    statAttempt.textContent = String(progress.attempts.length);
+    statWins.textContent = String(stats.wins);
+    statStreak.textContent = String(stats.currentStreak);
+  }
+
+  function showResultScreen() {
+    screenPlay.style.display = "none";
+    screenResult.classList.add("active");
+    adResult.style.display = "flex";
+    if (progress.won) {
+      resultEmoji.textContent = "🎉";
+      resultTitle.textContent = "정답입니다!";
+    } else {
+      resultEmoji.textContent = "😅";
+      resultTitle.textContent = "실패! 다음 기회에";
+    }
+    resultAnswer.textContent = "정답: " + TODAY_WORD;
+    resultDetail.textContent = progress.won
+      ? (progress.attempts.length) + "번 만에 맞혔어요!"
+      : MAX_ATTEMPTS + "번 모두 사용했어요.";
+  }
+
+  function finalizeIfNeeded() {
+    if (progress.gameOver && !progress.statsRecorded) {
+      stats.played++;
+      if (progress.won) {
+        stats.wins++;
+        stats.currentStreak++;
+        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+      } else {
+        stats.currentStreak = 0;
+      }
+      progress.statsRecorded = true;
+      saveStats(stats);
+      saveProgress(progress);
+    }
+  }
+
+  function submitGuess() {
+    var raw = inputEl.value.trim();
+    if (!raw) return;
+    var guessJamo = decomposeWord(raw);
+    if (guessJamo.length !== WORD_LEN) {
+      errorEl.textContent = "글자 수가 맞지 않아요 (" + WORD_LEN + "칸으로 분해되는 단어를 입력하세요)";
+      return;
+    }
+    errorEl.textContent = "";
+    var colors = scoreGuess(guessJamo, ANSWER_JAMO);
+    progress.attempts.push({ word: raw, jamo: guessJamo, colors: colors });
+    inputEl.value = "";
+
+    var isWin = colors.every(function (c) { return c === "green"; });
+    if (isWin) {
+      progress.won = true;
+      progress.gameOver = true;
+    } else if (progress.attempts.length >= MAX_ATTEMPTS) {
+      progress.gameOver = true;
+    }
+
+    saveProgress(progress);
+    renderBoard();
+
+    if (progress.gameOver) {
+      finalizeIfNeeded();
+      setTimeout(showResultScreen, 600);
+    }
+  }
+
+  document.getElementById("btn-submit").addEventListener("click", submitGuess);
+  inputEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") submitGuess();
+  });
+
+  /* 초기 렌더 */
+  renderBoard();
+  if (progress.gameOver) {
+    finalizeIfNeeded();
+    showResultScreen();
+  }
+
+  /* ===================== 게임 방법 모달 ===================== */
+  var helpModal = document.getElementById("help-modal");
+  document.getElementById("btn-help").addEventListener("click", function () { helpModal.classList.add("show"); });
+  document.getElementById("btn-help-close").addEventListener("click", function () { helpModal.classList.remove("show"); });
+  helpModal.addEventListener("click", function (e) { if (e.target === helpModal) helpModal.classList.remove("show"); });
+
+  /* ===================== 공유 기능 ===================== */
+  // 카카오 디벨로퍼스(https://developers.kakao.com)에서 발급받은 JavaScript 키를 아래에 입력하면
+  // 카카오톡 공유가 이미지·버튼이 포함된 카드 형태로 업그레이드됩니다. 비워두면 안전한 대체 동작으로 작동합니다.
+  var KAKAO_JS_KEY = "";
+
+  var shareToast = document.getElementById("share-toast");
+  var toastTimeoutId = null;
+
+  function showToast(msg) {
+    shareToast.textContent = msg;
+    shareToast.classList.add("show");
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = setTimeout(function () { shareToast.classList.remove("show"); }, 1800);
+  }
+
+  function getShareText() {
+    if (progress.won) {
+      return "🔠 오늘의 단어를 " + progress.attempts.length + "번 만에 맞혔어요! 너도 도전해볼래?";
+    }
+    return "🔠 오늘의 단어... 실패했어요 😅 너는 맞힐 수 있을까?";
+  }
+  function getShareUrl() { return window.location.href.split("#")[0].split("?")[0]; }
+
+  function fallbackCopy(text, message) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand("copy"); showToast(message || "링크가 복사되었어요!"); }
+    catch (e) { showToast("복사에 실패했어요."); }
+    document.body.removeChild(ta);
+  }
+
+  function copyLink(message) {
+    var url = getShareUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { showToast(message || "링크가 복사되었어요!"); })
+        .catch(function () { fallbackCopy(url, message); });
+    } else {
+      fallbackCopy(url, message);
+    }
+  }
+
+  function shareNative() {
+    if (!navigator.share) return;
+    navigator.share({ title: "오늘의 단어", text: getShareText(), url: getShareUrl() }).catch(function () { });
+  }
+
+  function loadKakaoSdk(cb) {
+    if (window.Kakao) { cb(); return; }
+    var s = document.createElement("script");
+    s.src = "https://developers.kakao.com/sdk/js/kakao.js";
+    s.onload = cb;
+    s.onerror = function () { showToast("카카오 SDK를 불러오지 못했어요."); };
+    document.head.appendChild(s);
+  }
+
+  function shareKakao() {
+    if (!KAKAO_JS_KEY) {
+      if (navigator.share) { shareNative(); }
+      else { copyLink("링크가 복사됐어요! 카카오톡 채팅방에 붙여넣어보세요."); }
+      return;
+    }
+    loadKakaoSdk(function () {
+      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+      window.Kakao.Share.sendDefault({
+        objectType: "text",
+        text: getShareText(),
+        link: { mobileWebUrl: getShareUrl(), webUrl: getShareUrl() }
+      });
+    });
+  }
+
+  function shareTwitter() {
+    var url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(getShareText()) + "&url=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+  function shareFacebook() {
+    var url = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+
+  document.getElementById("btn-share-kakao").addEventListener("click", shareKakao);
+  document.getElementById("btn-share-twitter").addEventListener("click", shareTwitter);
+  document.getElementById("btn-share-facebook").addEventListener("click", shareFacebook);
+  document.getElementById("btn-share-copy").addEventListener("click", function () { copyLink(); });
+
+  var nativeShareBtn = document.getElementById("btn-share-native");
+  if (navigator.share) { nativeShareBtn.addEventListener("click", shareNative); }
+  else { nativeShareBtn.style.display = "none"; }
+})();
+</script>
+</body>
+</html>

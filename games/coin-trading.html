@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🪙 타임코인 모의투자 | 시간순삭 미니게임</title>
+<meta name="description" content="100만원으로 시작하는 가상 코인(TIMC) 모의투자 게임. 매수/매도 타이밍만으로 승부하는 초간단 트레이딩 시뮬레이션.">
+<meta property="og:title" content="🪙 타임코인 모의투자 | 시간순삭">
+<meta property="og:description" content="100만원으로 시작해서 매수/매도만으로 승부하는 모의투자 게임! 내 잔고는 얼마가 됐을까?">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #fff8f2;
+    --surface: #ffffff;
+    --primary: #ff7a4d;
+    --primary-dark: #e8603a;
+    --secondary: #4d8dff;
+    --text: #2b2320;
+    --text-light: #6b6058;
+    --border: #f0e0d4;
+    --up: #e0473f;
+    --down: #2d6ee0;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .game-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 28px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .top-bar { display: flex; align-items: center; justify-content: space-between; }
+  .top-bar .title { font-size: 1.1rem; font-weight: 800; color: var(--primary-dark); }
+  .quit-btn {
+    background: none; border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 14px; font-size: 0.78rem; color: var(--text-light);
+    cursor: pointer; touch-action: manipulation; font-weight: 700;
+  }
+
+  .ad-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed #ffd9c2;
+    border-radius: 12px;
+    background: #fffaf6;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 6px;
+  }
+  .ad-slot.banner { min-height: 50px; max-width: 320px; margin: 0 auto; }
+  .ad-slot.rectangle { min-height: 250px; max-width: 300px; margin: 10px auto 0; display: none; }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 6px 18px rgba(43, 35, 32, 0.10);
+    padding: 20px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .screen { display: none; flex-direction: column; flex: 1; gap: 12px; }
+  .screen.active { display: flex; }
+
+  #screen-start { align-items: center; justify-content: center; text-align: center; gap: 12px; }
+  #screen-start .emoji-big { font-size: 3.2rem; }
+  #screen-start h1 { font-size: 1.3rem; margin: 0; }
+  #screen-start p { color: var(--text-light); font-size: 0.9rem; margin: 0; line-height: 1.65; }
+
+  .coin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .coin-name { font-size: 0.95rem; font-weight: 800; color: var(--text); }
+  .coin-name .code { color: var(--text-light); font-weight: 700; font-size: 0.8rem; }
+  .coin-price { font-size: 1.5rem; font-weight: 800; }
+  .coin-price.up { color: var(--up); }
+  .coin-price.down { color: var(--down); }
+  .coin-change { font-size: 0.82rem; font-weight: 700; text-align: right; }
+  .coin-change.up { color: var(--up); }
+  .coin-change.down { color: var(--down); }
+
+  .chart-wrap {
+    background: #fdfaf7;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+  }
+
+  .asset-row {
+    display: flex;
+    justify-content: space-between;
+    background: #fff1e8;
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .asset-stat { text-align: center; flex: 1; }
+  .asset-stat .num { font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); }
+  .asset-stat .num.up { color: var(--up); }
+  .asset-stat .num.down { color: var(--down); }
+  .asset-stat .label { font-size: 0.68rem; color: var(--text-light); font-weight: 700; }
+
+  .trade-row {
+    display: flex;
+    gap: 10px;
+  }
+  .trade-btn {
+    flex: 1;
+    padding: 16px 0;
+    border-radius: 14px;
+    border: none;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+    color: #fff;
+  }
+  .trade-btn.buy { background: var(--up); }
+  .trade-btn.sell { background: var(--down); }
+  .trade-btn:disabled { background: #ddd5cc; cursor: not-allowed; }
+  .trade-btn:active:not(:disabled) { opacity: 0.85; transform: scale(0.98); }
+
+  .log-box {
+    background: #fdfaf7;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    max-height: 74px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+  }
+  .log-box .log-up { color: var(--up); font-weight: 700; }
+  .log-box .log-down { color: var(--down); font-weight: 700; }
+
+  #screen-result { align-items: center; justify-content: center; text-align: center; gap: 8px; }
+  #screen-result .emoji-big { font-size: 3rem; }
+  #screen-result h2 { margin: 4px 0 0; font-size: 1.25rem; }
+  #result-amount { font-size: 2.1rem; font-weight: 800; }
+  #result-amount.up { color: var(--up); }
+  #result-amount.down { color: var(--down); }
+  #result-pct { font-size: 1.05rem; font-weight: 700; }
+  #result-pct.up { color: var(--up); }
+  #result-pct.down { color: var(--down); }
+  #result-detail { font-size: 0.85rem; color: var(--text-light); }
+
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.02rem;
+    touch-action: manipulation;
+  }
+  .btn:active { background: var(--primary-dark); transform: scale(0.98); }
+
+  .share-section { margin-top: 10px; width: 100%; }
+  .share-label { font-size: 0.82rem; color: var(--text-light); margin-bottom: 10px; }
+  .share-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; border-radius: 999px; padding: 11px 18px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    touch-action: manipulation; font-family: inherit;
+  }
+  .share-btn.kakao { background: #fee500; color: #3c1e1e; }
+  .share-btn.native { background: var(--secondary); color: #fff; }
+  .share-btn.small { padding: 8px 14px; font-size: 0.82rem; background: #f5f0eb; color: var(--text); }
+  .share-btn:active { transform: scale(0.96); }
+
+  .share-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2b2320; color: #fff; padding: 10px 20px; border-radius: 999px;
+    font-size: 0.85rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; z-index: 999; white-space: nowrap;
+  }
+  .share-toast.show { opacity: 1; }
+
+  .foot-note { text-align: center; font-size: 0.78rem; color: var(--text-light); }
+  .foot-note a { color: var(--secondary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="game-shell">
+  <div class="top-bar">
+    <div class="title">🪙 타임코인 모의투자</div>
+    <button class="quit-btn" id="btn-quit" style="display:none;">끝내기</button>
+  </div>
+
+  <!-- 광고 영역 1: 상단 배너 -->
+  <div class="ad-slot banner">광고 영역 (배너, 320x50)</div>
+
+  <div class="game-card">
+    <div id="screen-start" class="screen active">
+      <div class="emoji-big">🪙</div>
+      <h1>타임코인 (TIMC) 모의투자</h1>
+      <p>100만원으로 시작해서<br>매수 또는 매도, 둘 중 하나로만 승부하세요.<br>10초마다 새 봉이 생기고, 원할 때 "끝내기"로<br>최종 잔고를 확인할 수 있어요.</p>
+      <button class="btn" id="btn-start">100만원으로 시작하기</button>
+    </div>
+
+    <div id="screen-play" class="screen">
+      <div class="coin-header">
+        <div class="coin-name">타임코인 <span class="code">TIMC/KRW</span></div>
+        <div style="text-align:right;">
+          <div class="coin-price" id="coin-price">0</div>
+          <div class="coin-change" id="coin-change">0.00%</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <svg id="chart-svg" viewBox="0 0 340 190" style="width:100%;height:150px;display:block;"></svg>
+        <svg id="volume-svg" viewBox="0 0 340 40" style="width:100%;height:32px;display:block;"></svg>
+      </div>
+
+      <div class="asset-row">
+        <div class="asset-stat"><div class="num" id="asset-total">1,000,000원</div><div class="label">평가자산</div></div>
+        <div class="asset-stat"><div class="num" id="asset-pct">0.00%</div><div class="label">수익률</div></div>
+        <div class="asset-stat"><div class="num" id="asset-holding">현금</div><div class="label">보유상태</div></div>
+      </div>
+
+      <div class="trade-row">
+        <button class="trade-btn buy" id="btn-buy">매수 (전량)</button>
+        <button class="trade-btn sell" id="btn-sell">매도 (전량)</button>
+      </div>
+
+      <div class="log-box" id="log-box"></div>
+    </div>
+
+    <div id="screen-result" class="screen">
+      <div class="emoji-big" id="result-emoji">🎉</div>
+      <h2>투자 종료!</h2>
+      <div id="result-amount">1,000,000원</div>
+      <div id="result-pct">0.00%</div>
+      <div id="result-detail"></div>
+      <button class="btn" id="btn-restart">다시 하기</button>
+
+      <div class="share-section">
+        <div class="share-label">내 잔고를 자랑해보세요!</div>
+        <div class="share-row">
+          <button class="share-btn kakao" id="btn-share-kakao">💬 카카오톡</button>
+          <button class="share-btn native" id="btn-share-native">📤 공유하기</button>
+        </div>
+        <div class="share-row">
+          <button class="share-btn small" id="btn-share-twitter">🐦 X</button>
+          <button class="share-btn small" id="btn-share-facebook">📘 페이스북</button>
+          <button class="share-btn small" id="btn-share-copy">🔗 링크 복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 광고 영역 2: 결과 화면 사각형 배너 -->
+  <div class="ad-slot rectangle" id="ad-result">광고 영역 (사각형, 300x250)</div>
+
+  <p class="foot-note">⏱️ 시간순삭의 미니게임 &middot; <a href="index.html">다른 콘텐츠 보러 가기</a></p>
+</div>
+
+<div class="share-toast" id="share-toast"></div>
+
+<script>
+(function () {
+  var START_CASH = 1000000;
+  var CANDLE_SECONDS = 10;
+  var TICK_MS = 200;
+  var VISIBLE_CANDLES = 20;
+
+  var screens = {
+    start: document.getElementById("screen-start"),
+    play: document.getElementById("screen-play"),
+    result: document.getElementById("screen-result")
+  };
+  var adResult = document.getElementById("ad-result");
+  var quitBtn = document.getElementById("btn-quit");
+  var coinPriceEl = document.getElementById("coin-price");
+  var coinChangeEl = document.getElementById("coin-change");
+  var chartSvg = document.getElementById("chart-svg");
+  var volumeSvg = document.getElementById("volume-svg");
+  var assetTotal = document.getElementById("asset-total");
+  var assetPct = document.getElementById("asset-pct");
+  var assetHolding = document.getElementById("asset-holding");
+  var buyBtn = document.getElementById("btn-buy");
+  var sellBtn = document.getElementById("btn-sell");
+  var logBox = document.getElementById("log-box");
+
+  var price = 50000;
+  var prevClose = 50000;
+  var candles = [];
+  var currentCandle = null;
+  var tickTimerId = null;
+  var candleTimerId = null;
+  var elapsedInCandle = 0;
+
+  var cash = START_CASH;
+  var coins = 0;
+  var holding = "cash"; // 'cash' | 'coin'
+  var playing = false;
+
+  function formatWon(n) {
+    return Math.round(n).toLocaleString("ko-KR") + "원";
+  }
+
+  function priceTick() {
+    var shock = (Math.random() - 0.5) * 2;
+    var pct = (Math.random() < 0.08) ? shock * 0.02 : shock * 0.004;
+    price = price * (1 + pct);
+    price = Math.max(5000, Math.min(400000, price));
+
+    if (!currentCandle) {
+      currentCandle = { open: price, high: price, low: price, close: price, vol: 0 };
+    }
+    currentCandle.close = price;
+    currentCandle.high = Math.max(currentCandle.high, price);
+    currentCandle.low = Math.min(currentCandle.low, price);
+    currentCandle.vol += Math.random() * 40 + 10;
+
+    updateHeader();
+    updateAssets();
+    renderChart();
+  }
+
+  function closeCandle() {
+    if (currentCandle) {
+      candles.push(currentCandle);
+      if (candles.length > VISIBLE_CANDLES) candles.shift();
+      prevClose = currentCandle.close;
+    }
+    currentCandle = { open: price, high: price, low: price, close: price, vol: 0 };
+    renderChart();
+  }
+
+  function updateHeader() {
+    var changePct = ((price - prevClose) / prevClose) * 100;
+    var isUp = price >= prevClose;
+    coinPriceEl.textContent = formatWon(price).replace("원", "");
+    coinPriceEl.className = "coin-price " + (isUp ? "up" : "down");
+    coinChangeEl.textContent = (isUp ? "▲ " : "▼ ") + Math.abs(changePct).toFixed(2) + "%";
+    coinChangeEl.className = "coin-change " + (isUp ? "up" : "down");
+  }
+
+  function getTotalAsset() {
+    return holding === "cash" ? cash : coins * price;
+  }
+
+  function updateAssets() {
+    var total = getTotalAsset();
+    var pct = ((total - START_CASH) / START_CASH) * 100;
+    var isUp = total >= START_CASH;
+    assetTotal.textContent = formatWon(total);
+    assetTotal.className = "num " + (isUp ? "up" : (total < START_CASH ? "down" : ""));
+    assetPct.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+    assetPct.className = "num " + (pct >= 0 ? "up" : "down");
+    assetHolding.textContent = holding === "cash" ? "현금" : "코인";
+    buyBtn.disabled = (holding === "coin");
+    sellBtn.disabled = (holding === "cash");
+  }
+
+  function addLog(text, cls) {
+    var div = document.createElement("div");
+    if (cls) div.className = cls;
+    div.textContent = text;
+    logBox.appendChild(div);
+    while (logBox.children.length > 20) logBox.removeChild(logBox.firstChild);
+  }
+
+  function buyAll() {
+    if (holding !== "cash" || cash <= 0) return;
+    coins = cash / price;
+    cash = 0;
+    holding = "coin";
+    addLog("🔴 매수 @ " + formatWon(price), "log-up");
+    updateAssets();
+  }
+
+  function sellAll() {
+    if (holding !== "coin" || coins <= 0) return;
+    cash = coins * price;
+    coins = 0;
+    holding = "cash";
+    addLog("🔵 매도 @ " + formatWon(price), "log-down");
+    updateAssets();
+  }
+
+  function renderChart() {
+    var allCandles = candles.concat(currentCandle ? [currentCandle] : []);
+    if (allCandles.length === 0) return;
+
+    var lows = allCandles.map(function (c) { return c.low; });
+    var highs = allCandles.map(function (c) { return c.high; });
+    var minP = Math.min.apply(null, lows);
+    var maxP = Math.max.apply(null, highs);
+    var range = Math.max(maxP - minP, 1);
+    var pad = range * 0.1;
+    minP -= pad; maxP += pad; range = maxP - minP;
+
+    var W = 340, H = 190;
+    var slotW = W / VISIBLE_CANDLES;
+    var offset = VISIBLE_CANDLES - allCandles.length;
+
+    function y(p) { return H - ((p - minP) / range) * H; }
+
+    var svgParts = [];
+    allCandles.forEach(function (c, i) {
+      var x = (offset + i) * slotW + slotW / 2;
+      var isUp = c.close >= c.open;
+      var color = isUp ? "#e0473f" : "#2d6ee0";
+      var yHigh = y(c.high), yLow = y(c.low);
+      var yOpen = y(c.open), yClose = y(c.close);
+      var bodyTop = Math.min(yOpen, yClose);
+      var bodyH = Math.max(Math.abs(yClose - yOpen), 1.5);
+      svgParts.push('<line x1="' + x + '" y1="' + yHigh + '" x2="' + x + '" y2="' + yLow + '" stroke="' + color + '" stroke-width="1.5"/>');
+      svgParts.push('<rect x="' + (x - slotW * 0.32) + '" y="' + bodyTop + '" width="' + (slotW * 0.64) + '" height="' + bodyH + '" fill="' + color + '"/>');
+    });
+    chartSvg.innerHTML = svgParts.join("");
+
+    var maxVol = Math.max.apply(null, allCandles.map(function (c) { return c.vol; }).concat([1]));
+    var volParts = [];
+    allCandles.forEach(function (c, i) {
+      var x = (offset + i) * slotW + slotW / 2;
+      var isUp = c.close >= c.open;
+      var color = isUp ? "#e0473f" : "#2d6ee0";
+      var vh = Math.max((c.vol / maxVol) * 36, 2);
+      volParts.push('<rect x="' + (x - slotW * 0.32) + '" y="' + (40 - vh) + '" width="' + (slotW * 0.64) + '" height="' + vh + '" fill="' + color + '" opacity="0.55"/>');
+    });
+    volumeSvg.innerHTML = volParts.join("");
+  }
+
+  function startGame() {
+    price = 50000; prevClose = 50000;
+    candles = [];
+    currentCandle = null;
+    elapsedInCandle = 0;
+    cash = START_CASH; coins = 0; holding = "cash";
+    logBox.innerHTML = "";
+    playing = true;
+
+    showScreen("play");
+    quitBtn.style.display = "inline-block";
+    updateHeader();
+    updateAssets();
+    closeCandle();
+
+    clearInterval(tickTimerId);
+    clearInterval(candleTimerId);
+    tickTimerId = setInterval(priceTick, TICK_MS);
+    candleTimerId = setInterval(closeCandle, CANDLE_SECONDS * 1000);
+  }
+
+  function endGame() {
+    playing = false;
+    clearInterval(tickTimerId);
+    clearInterval(candleTimerId);
+    quitBtn.style.display = "none";
+
+    var total = getTotalAsset();
+    var pct = ((total - START_CASH) / START_CASH) * 100;
+    var isUp = total >= START_CASH;
+
+    document.getElementById("result-emoji").textContent = isUp ? "🎉" : "😅";
+    var resultAmount = document.getElementById("result-amount");
+    resultAmount.textContent = formatWon(total);
+    resultAmount.className = isUp ? "up" : "down";
+    var resultPct = document.getElementById("result-pct");
+    resultPct.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+    resultPct.className = pct >= 0 ? "up" : "down";
+    document.getElementById("result-detail").textContent = "시작 금액 1,000,000원 → 최종 " + formatWon(total);
+
+    lastResultTotal = total;
+    lastResultPct = pct;
+
+    showScreen("result");
+  }
+
+  function showScreen(name) {
+    Object.keys(screens).forEach(function (key) {
+      screens[key].classList.toggle("active", key === name);
+    });
+    adResult.style.display = (name === "result") ? "flex" : "none";
+  }
+
+  document.getElementById("btn-start").addEventListener("click", startGame);
+  document.getElementById("btn-restart").addEventListener("click", startGame);
+  quitBtn.addEventListener("click", endGame);
+  buyBtn.addEventListener("click", buyAll);
+  sellBtn.addEventListener("click", sellAll);
+
+  var lastResultTotal = START_CASH;
+  var lastResultPct = 0;
+
+  /* ===================== 공유 기능 ===================== */
+  // 카카오 디벨로퍼스(https://developers.kakao.com)에서 발급받은 JavaScript 키를 아래에 입력하면
+  // 카카오톡 공유가 이미지·버튼이 포함된 카드 형태로 업그레이드됩니다. 비워두면 안전한 대체 동작으로 작동합니다.
+  var KAKAO_JS_KEY = "";
+
+  var shareToast = document.getElementById("share-toast");
+  var toastTimeoutId = null;
+
+  function showToast(msg) {
+    shareToast.textContent = msg;
+    shareToast.classList.add("show");
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = setTimeout(function () { shareToast.classList.remove("show"); }, 1800);
+  }
+
+  function getShareText() {
+    var pctText = (lastResultPct >= 0 ? "+" : "") + lastResultPct.toFixed(2) + "%";
+    return "🪙 타임코인 모의투자에서 " + formatWon(lastResultTotal) + "(" + pctText + ") 달성! 너도 도전해볼래?";
+  }
+  function getShareUrl() { return window.location.href.split("#")[0].split("?")[0]; }
+
+  function fallbackCopy(text, message) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand("copy"); showToast(message || "링크가 복사되었어요!"); }
+    catch (e) { showToast("복사에 실패했어요."); }
+    document.body.removeChild(ta);
+  }
+
+  function copyLink(message) {
+    var url = getShareUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { showToast(message || "링크가 복사되었어요!"); })
+        .catch(function () { fallbackCopy(url, message); });
+    } else {
+      fallbackCopy(url, message);
+    }
+  }
+
+  function shareNative() {
+    if (!navigator.share) return;
+    navigator.share({ title: "타임코인 모의투자", text: getShareText(), url: getShareUrl() }).catch(function () { });
+  }
+
+  function loadKakaoSdk(cb) {
+    if (window.Kakao) { cb(); return; }
+    var s = document.createElement("script");
+    s.src = "https://developers.kakao.com/sdk/js/kakao.js";
+    s.onload = cb;
+    s.onerror = function () { showToast("카카오 SDK를 불러오지 못했어요."); };
+    document.head.appendChild(s);
+  }
+
+  function shareKakao() {
+    if (!KAKAO_JS_KEY) {
+      if (navigator.share) { shareNative(); }
+      else { copyLink("링크가 복사됐어요! 카카오톡 채팅방에 붙여넣어보세요."); }
+      return;
+    }
+    loadKakaoSdk(function () {
+      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+      window.Kakao.Share.sendDefault({
+        objectType: "text",
+        text: getShareText(),
+        link: { mobileWebUrl: getShareUrl(), webUrl: getShareUrl() }
+      });
+    });
+  }
+
+  function shareTwitter() {
+    var url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(getShareText()) + "&url=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+  function shareFacebook() {
+    var url = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(getShareUrl());
+    window.open(url, "_blank", "noopener,width=560,height=520");
+  }
+
+  document.getElementById("btn-share-kakao").addEventListener("click", shareKakao);
+  document.getElementById("btn-share-twitter").addEventListener("click", shareTwitter);
+  document.getElementById("btn-share-facebook").addEventListener("click", shareFacebook);
+  document.getElementById("btn-share-copy").addEventListener("click", function () { copyLink(); });
+
+  var nativeShareBtn = document.getElementById("btn-share-native");
+  if (navigator.share) { nativeShareBtn.addEventListener("click", shareNative); }
+  else { nativeShareBtn.style.display = "none"; }
+})();
+</script>
+</body>
+</html>
