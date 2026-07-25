@@ -190,6 +190,7 @@
   #result-pct.up { color: var(--up); }
   #result-pct.down { color: var(--down); }
   #result-detail { font-size: 0.85rem; color: var(--text-light); }
+  #result-peak { font-size: 0.9rem; color: var(--primary-dark); font-weight: 800; margin-top: 2px; }
 
   .btn {
     display: inline-block;
@@ -297,6 +298,7 @@
       <div id="result-amount">1,000,000원</div>
       <div id="result-pct">0.00%</div>
       <div id="result-detail"></div>
+      <div id="result-peak"></div>
       <button class="btn" id="btn-restart">다시 하기</button>
 
       <div class="share-section">
@@ -358,6 +360,7 @@
   var entryCash = 0;
   var currentLeverage = 1;
   var positionLeverage = 1;
+  var peakAsset = START_CASH;
   var playing = false;
 
   function formatWon(n) {
@@ -417,6 +420,7 @@
 
   function updateAssets() {
     var total = getTotalAsset();
+    if (total > peakAsset) peakAsset = total;
 
     if (position !== "cash" && total <= 0 && playing) {
       forceLiquidate(total);
@@ -550,6 +554,7 @@
     currentCandle = null;
     elapsedInCandle = 0;
     cash = START_CASH; position = "cash"; entryPrice = 0; entryCash = 0; positionLeverage = 1;
+    peakAsset = START_CASH;
     setLeverage(1);
     logBox.innerHTML = "";
     playing = true;
@@ -577,6 +582,7 @@
       position = "cash";
     }
     var total = cash;
+    if (total > peakAsset) peakAsset = total;
     var pct = ((total - START_CASH) / START_CASH) * 100;
     var isUp = total >= START_CASH;
 
@@ -589,6 +595,7 @@
     resultPct.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
     resultPct.className = pct >= 0 ? "up" : "down";
     document.getElementById("result-detail").textContent = "시작 금액 1,000,000원 → 최종 " + formatWon(total);
+    document.getElementById("result-peak").textContent = "🏆 내 최고기록: " + formatWon(peakAsset);
 
     lastResultTotal = total;
     lastResultPct = pct;
