@@ -207,13 +207,7 @@
       <div class="share-section">
         <div class="share-label">기록을 친구에게 자랑해보세요!</div>
         <div class="share-row">
-          <button class="share-btn kakao" id="btn-share-kakao">💬 카카오톡</button>
           <button class="share-btn native" id="btn-share-native">📤 공유하기</button>
-        </div>
-        <div class="share-row">
-          <button class="share-btn small" id="btn-share-twitter">🐦 X</button>
-          <button class="share-btn small" id="btn-share-facebook">📘 페이스북</button>
-          <button class="share-btn small" id="btn-share-copy">🔗 링크 복사</button>
         </div>
       </div>
     </div>
@@ -349,10 +343,6 @@
   bestScoreDisplay.textContent = best0 ? best0 + "ms" : "-";
 
   /* ===================== 공유 기능 ===================== */
-  // 카카오 디벨로퍼스(https://developers.kakao.com)에서 발급받은 JavaScript 키를 아래에 입력하면
-  // 카카오톡 공유가 이미지·버튼이 포함된 카드 형태로 업그레이드됩니다. 비워두면 안전한 대체 동작으로 작동합니다.
-  var KAKAO_JS_KEY = "";
-
   var shareToast = document.getElementById("share-toast");
   var toastTimeoutId = null;
 
@@ -387,53 +377,15 @@
     }
   }
 
-  function shareNative() {
-    if (!navigator.share) return;
-    navigator.share({ title: "반응속도 테스트", text: getShareText(), url: getShareUrl() }).catch(function () { });
-  }
-
-  function loadKakaoSdk(cb) {
-    if (window.Kakao) { cb(); return; }
-    var s = document.createElement("script");
-    s.src = "https://developers.kakao.com/sdk/js/kakao.js";
-    s.onload = cb;
-    s.onerror = function () { showToast("카카오 SDK를 불러오지 못했어요."); };
-    document.head.appendChild(s);
-  }
-
-  function shareKakao() {
-    if (!KAKAO_JS_KEY) {
-      if (navigator.share) { shareNative(); }
-      else { copyLink("링크가 복사됐어요! 카카오톡 채팅방에 붙여넣어보세요."); }
-      return;
+  function shareResult() {
+    if (navigator.share) {
+      navigator.share({ title: "반응속도 테스트", text: getShareText(), url: getShareUrl() }).catch(function () { });
+    } else {
+      copyLink("링크가 복사됐어요! 친구에게 공유해보세요.");
     }
-    loadKakaoSdk(function () {
-      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
-      window.Kakao.Share.sendDefault({
-        objectType: "text",
-        text: getShareText(),
-        link: { mobileWebUrl: getShareUrl(), webUrl: getShareUrl() }
-      });
-    });
   }
 
-  function shareTwitter() {
-    var url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(getShareText()) + "&url=" + encodeURIComponent(getShareUrl());
-    window.open(url, "_blank", "noopener,width=560,height=520");
-  }
-  function shareFacebook() {
-    var url = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(getShareUrl());
-    window.open(url, "_blank", "noopener,width=560,height=520");
-  }
-
-  document.getElementById("btn-share-kakao").addEventListener("click", shareKakao);
-  document.getElementById("btn-share-twitter").addEventListener("click", shareTwitter);
-  document.getElementById("btn-share-facebook").addEventListener("click", shareFacebook);
-  document.getElementById("btn-share-copy").addEventListener("click", function () { copyLink(); });
-
-  var nativeShareBtn = document.getElementById("btn-share-native");
-  if (navigator.share) { nativeShareBtn.addEventListener("click", shareNative); }
-  else { nativeShareBtn.style.display = "none"; }
+  document.getElementById("btn-share-native").addEventListener("click", shareResult);
 })();
 </script>
 </body>

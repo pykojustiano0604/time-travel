@@ -98,6 +98,7 @@
   }
   .coin-name { font-size: 0.95rem; font-weight: 800; color: var(--text); }
   .coin-name .code { color: var(--text-light); font-weight: 700; font-size: 0.8rem; }
+  .candle-note { font-size: 0.68rem; color: var(--text-light); margin-top: 2px; }
   .coin-price { font-size: 1.5rem; font-weight: 800; }
   .coin-price.up { color: var(--up); }
   .coin-price.down { color: var(--down); }
@@ -125,24 +126,44 @@
   .asset-stat .num.down { color: var(--down); }
   .asset-stat .label { font-size: 0.68rem; color: var(--text-light); font-weight: 700; }
 
-  .trade-row {
+  .leverage-row {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
   }
-  .trade-btn {
+  .leverage-label { font-size: 0.78rem; color: var(--text-light); font-weight: 700; }
+  .lev-btn {
     flex: 1;
-    padding: 16px 0;
-    border-radius: 14px;
-    border: none;
-    font-size: 1.05rem;
+    padding: 8px 0;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-light);
+    font-size: 0.82rem;
     font-weight: 800;
     cursor: pointer;
     touch-action: manipulation;
-    color: #fff;
   }
-  .trade-btn.buy { background: var(--up); }
-  .trade-btn.sell { background: var(--down); }
-  .trade-btn:disabled { background: #ddd5cc; cursor: not-allowed; }
+  .lev-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  .trade-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .trade-btn {
+    padding: 14px 0;
+    border-radius: 14px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .trade-btn.long-buy { background: var(--up); color: #fff; border: none; }
+  .trade-btn.long-sell { background: #fff; color: var(--up); border: 2px solid var(--up); }
+  .trade-btn.short-buy { background: var(--down); color: #fff; border: none; }
+  .trade-btn.short-sell { background: #fff; color: var(--down); border: 2px solid var(--down); }
+  .trade-btn:disabled { background: #ddd5cc; border-color: #ddd5cc; color: #fff; cursor: not-allowed; }
   .trade-btn:active:not(:disabled) { opacity: 0.85; transform: scale(0.98); }
 
   .log-box {
@@ -152,8 +173,6 @@
     padding: 8px 12px;
     font-size: 0.78rem;
     color: var(--text-light);
-    max-height: 74px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column-reverse;
     gap: 3px;
@@ -227,13 +246,16 @@
     <div id="screen-start" class="screen active">
       <div class="emoji-big">🪙</div>
       <h1>타임코인 (TIMC) 모의투자</h1>
-      <p>100만원으로 시작해서<br>매수 또는 매도, 둘 중 하나로만 승부하세요.<br>10초마다 새 봉이 생기고, 원할 때 "끝내기"로<br>최종 잔고를 확인할 수 있어요.</p>
+      <p>100만원으로 시작해서<br>롱(상승 베팅) 또는 숏(하락 베팅)으로 승부하세요.<br>레버리지 1~10배도 자유롭게 켜고 끌 수 있어요.<br>단, 손실이 100%를 넘으면 강제청산되니 주의!</p>
       <button class="btn" id="btn-start">100만원으로 시작하기</button>
     </div>
 
     <div id="screen-play" class="screen">
       <div class="coin-header">
-        <div class="coin-name">타임코인 <span class="code">TIMC/KRW</span></div>
+        <div>
+          <div class="coin-name">타임코인 <span class="code">TIMC/KRW</span></div>
+          <div class="candle-note">각 봉은 10초봉입니다</div>
+        </div>
         <div style="text-align:right;">
           <div class="coin-price" id="coin-price">0</div>
           <div class="coin-change" id="coin-change">0.00%</div>
@@ -251,9 +273,19 @@
         <div class="asset-stat"><div class="num" id="asset-holding">현금</div><div class="label">보유상태</div></div>
       </div>
 
-      <div class="trade-row">
-        <button class="trade-btn buy" id="btn-buy">매수 (전량)</button>
-        <button class="trade-btn sell" id="btn-sell">매도 (전량)</button>
+      <div class="leverage-row">
+        <span class="leverage-label">레버리지</span>
+        <button class="lev-btn active" data-lev="1">1x</button>
+        <button class="lev-btn" data-lev="2">2x</button>
+        <button class="lev-btn" data-lev="5">5x</button>
+        <button class="lev-btn" data-lev="10">10x</button>
+      </div>
+
+      <div class="trade-grid">
+        <button class="trade-btn long-buy" id="btn-long-buy">롱 매수</button>
+        <button class="trade-btn long-sell" id="btn-long-sell">롱 매도</button>
+        <button class="trade-btn short-buy" id="btn-short-buy">숏 매수</button>
+        <button class="trade-btn short-sell" id="btn-short-sell">숏 매도</button>
       </div>
 
       <div class="log-box" id="log-box"></div>
@@ -270,13 +302,7 @@
       <div class="share-section">
         <div class="share-label">내 잔고를 자랑해보세요!</div>
         <div class="share-row">
-          <button class="share-btn kakao" id="btn-share-kakao">💬 카카오톡</button>
           <button class="share-btn native" id="btn-share-native">📤 공유하기</button>
-        </div>
-        <div class="share-row">
-          <button class="share-btn small" id="btn-share-twitter">🐦 X</button>
-          <button class="share-btn small" id="btn-share-facebook">📘 페이스북</button>
-          <button class="share-btn small" id="btn-share-copy">🔗 링크 복사</button>
         </div>
       </div>
     </div>
@@ -311,8 +337,11 @@
   var assetTotal = document.getElementById("asset-total");
   var assetPct = document.getElementById("asset-pct");
   var assetHolding = document.getElementById("asset-holding");
-  var buyBtn = document.getElementById("btn-buy");
-  var sellBtn = document.getElementById("btn-sell");
+  var longBuyBtn = document.getElementById("btn-long-buy");
+  var longSellBtn = document.getElementById("btn-long-sell");
+  var shortBuyBtn = document.getElementById("btn-short-buy");
+  var shortSellBtn = document.getElementById("btn-short-sell");
+  var levBtns = Array.prototype.slice.call(document.querySelectorAll(".lev-btn"));
   var logBox = document.getElementById("log-box");
 
   var price = 50000;
@@ -324,27 +353,35 @@
   var elapsedInCandle = 0;
 
   var cash = START_CASH;
-  var coins = 0;
-  var holding = "cash"; // 'cash' | 'coin'
+  var position = "cash"; // 'cash' | 'long' | 'short'
+  var entryPrice = 0;
+  var entryCash = 0;
+  var currentLeverage = 1;
+  var positionLeverage = 1;
   var playing = false;
 
   function formatWon(n) {
     return Math.round(n).toLocaleString("ko-KR") + "원";
   }
 
+  function newCandle() {
+    return { open: price, high: price, low: price, close: price, vol: 0, volMult: 0.5 + Math.random() * 2.5 };
+  }
+
   function priceTick() {
+    if (!currentCandle) currentCandle = newCandle();
+    var volMult = currentCandle.volMult;
+
     var shock = (Math.random() - 0.5) * 2;
-    var pct = (Math.random() < 0.08) ? shock * 0.02 : shock * 0.004;
+    var baseSpike = (Math.random() < 0.08) ? 0.02 : 0.004;
+    var pct = shock * baseSpike * volMult;
     price = price * (1 + pct);
     price = Math.max(5000, Math.min(400000, price));
 
-    if (!currentCandle) {
-      currentCandle = { open: price, high: price, low: price, close: price, vol: 0 };
-    }
     currentCandle.close = price;
     currentCandle.high = Math.max(currentCandle.high, price);
     currentCandle.low = Math.min(currentCandle.low, price);
-    currentCandle.vol += Math.random() * 40 + 10;
+    currentCandle.vol += (Math.random() * 40 + 10) * volMult;
 
     updateHeader();
     updateAssets();
@@ -357,7 +394,7 @@
       if (candles.length > VISIBLE_CANDLES) candles.shift();
       prevClose = currentCandle.close;
     }
-    currentCandle = { open: price, high: price, low: price, close: price, vol: 0 };
+    currentCandle = newCandle();
     renderChart();
   }
 
@@ -371,20 +408,32 @@
   }
 
   function getTotalAsset() {
-    return holding === "cash" ? cash : coins * price;
+    if (position === "cash") return cash;
+    var rawReturn = position === "long"
+      ? (price - entryPrice) / entryPrice
+      : (entryPrice - price) / entryPrice;
+    return entryCash * (1 + rawReturn * positionLeverage);
   }
 
   function updateAssets() {
     var total = getTotalAsset();
+
+    if (position !== "cash" && total <= 0 && playing) {
+      forceLiquidate(total);
+      return;
+    }
+
     var pct = ((total - START_CASH) / START_CASH) * 100;
     var isUp = total >= START_CASH;
     assetTotal.textContent = formatWon(total);
     assetTotal.className = "num " + (isUp ? "up" : (total < START_CASH ? "down" : ""));
     assetPct.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
     assetPct.className = "num " + (pct >= 0 ? "up" : "down");
-    assetHolding.textContent = holding === "cash" ? "현금" : "코인";
-    buyBtn.disabled = (holding === "coin");
-    sellBtn.disabled = (holding === "cash");
+    assetHolding.textContent = position === "cash" ? "현금" : (position === "long" ? "롱 " + positionLeverage + "x" : "숏 " + positionLeverage + "x");
+    longBuyBtn.disabled = (position !== "cash");
+    shortBuyBtn.disabled = (position !== "cash");
+    longSellBtn.disabled = (position !== "long");
+    shortSellBtn.disabled = (position !== "short");
   }
 
   function addLog(text, cls) {
@@ -395,22 +444,60 @@
     while (logBox.children.length > 20) logBox.removeChild(logBox.firstChild);
   }
 
-  function buyAll() {
-    if (holding !== "cash" || cash <= 0) return;
-    coins = cash / price;
+  function enterLong() {
+    if (position !== "cash" || cash <= 0) return;
+    entryPrice = price;
+    entryCash = cash;
+    positionLeverage = currentLeverage;
     cash = 0;
-    holding = "coin";
-    addLog("🔴 매수 @ " + formatWon(price), "log-up");
+    position = "long";
+    addLog("🔴 롱 매수 @ " + formatWon(price) + " (" + positionLeverage + "x)", "log-up");
     updateAssets();
   }
 
-  function sellAll() {
-    if (holding !== "coin" || coins <= 0) return;
-    cash = coins * price;
-    coins = 0;
-    holding = "cash";
-    addLog("🔵 매도 @ " + formatWon(price), "log-down");
+  function exitLong() {
+    if (position !== "long") return;
+    var total = getTotalAsset();
+    var pnlPct = ((total - entryCash) / entryCash) * 100;
+    cash = Math.max(total, 0);
+    position = "cash";
+    addLog("🔴 롱 매도 @ " + formatWon(price) + " (" + (pnlPct >= 0 ? "+" : "") + pnlPct.toFixed(2) + "%)", pnlPct >= 0 ? "log-up" : "log-down");
     updateAssets();
+  }
+
+  function enterShort() {
+    if (position !== "cash" || cash <= 0) return;
+    entryPrice = price;
+    entryCash = cash;
+    positionLeverage = currentLeverage;
+    cash = 0;
+    position = "short";
+    addLog("🔵 숏 매수 @ " + formatWon(price) + " (" + positionLeverage + "x)", "log-down");
+    updateAssets();
+  }
+
+  function exitShort() {
+    if (position !== "short") return;
+    var total = getTotalAsset();
+    var pnlPct = ((total - entryCash) / entryCash) * 100;
+    cash = Math.max(total, 0);
+    position = "cash";
+    addLog("🔵 숏 매도 @ " + formatWon(price) + " (" + (pnlPct >= 0 ? "+" : "") + pnlPct.toFixed(2) + "%)", pnlPct >= 0 ? "log-up" : "log-down");
+    updateAssets();
+  }
+
+  function forceLiquidate(total) {
+    cash = total;
+    position = "cash";
+    addLog("💥 강제청산! 잔고 " + formatWon(cash), "log-down");
+    endGame(true);
+  }
+
+  function setLeverage(n) {
+    currentLeverage = n;
+    levBtns.forEach(function (b) {
+      b.classList.toggle("active", parseInt(b.dataset.lev, 10) === n);
+    });
   }
 
   function renderChart() {
@@ -462,7 +549,8 @@
     candles = [];
     currentCandle = null;
     elapsedInCandle = 0;
-    cash = START_CASH; coins = 0; holding = "cash";
+    cash = START_CASH; position = "cash"; entryPrice = 0; entryCash = 0; positionLeverage = 1;
+    setLeverage(1);
     logBox.innerHTML = "";
     playing = true;
 
@@ -478,17 +566,22 @@
     candleTimerId = setInterval(closeCandle, CANDLE_SECONDS * 1000);
   }
 
-  function endGame() {
+  function endGame(liquidated) {
     playing = false;
     clearInterval(tickTimerId);
     clearInterval(candleTimerId);
     quitBtn.style.display = "none";
 
-    var total = getTotalAsset();
+    if (!liquidated && position !== "cash") {
+      cash = getTotalAsset();
+      position = "cash";
+    }
+    var total = cash;
     var pct = ((total - START_CASH) / START_CASH) * 100;
     var isUp = total >= START_CASH;
 
-    document.getElementById("result-emoji").textContent = isUp ? "🎉" : "😅";
+    document.getElementById("result-emoji").textContent = liquidated ? "💥" : (isUp ? "🎉" : "😅");
+    document.querySelector("#screen-result h2").textContent = liquidated ? "강제청산 되었습니다!" : "투자 종료!";
     var resultAmount = document.getElementById("result-amount");
     resultAmount.textContent = formatWon(total);
     resultAmount.className = isUp ? "up" : "down";
@@ -512,18 +605,19 @@
 
   document.getElementById("btn-start").addEventListener("click", startGame);
   document.getElementById("btn-restart").addEventListener("click", startGame);
-  quitBtn.addEventListener("click", endGame);
-  buyBtn.addEventListener("click", buyAll);
-  sellBtn.addEventListener("click", sellAll);
+  quitBtn.addEventListener("click", function () { endGame(false); });
+  longBuyBtn.addEventListener("click", enterLong);
+  longSellBtn.addEventListener("click", exitLong);
+  shortBuyBtn.addEventListener("click", enterShort);
+  shortSellBtn.addEventListener("click", exitShort);
+  levBtns.forEach(function (b) {
+    b.addEventListener("click", function () { setLeverage(parseInt(b.dataset.lev, 10)); });
+  });
 
   var lastResultTotal = START_CASH;
   var lastResultPct = 0;
 
   /* ===================== 공유 기능 ===================== */
-  // 카카오 디벨로퍼스(https://developers.kakao.com)에서 발급받은 JavaScript 키를 아래에 입력하면
-  // 카카오톡 공유가 이미지·버튼이 포함된 카드 형태로 업그레이드됩니다. 비워두면 안전한 대체 동작으로 작동합니다.
-  var KAKAO_JS_KEY = "";
-
   var shareToast = document.getElementById("share-toast");
   var toastTimeoutId = null;
 
@@ -559,53 +653,15 @@
     }
   }
 
-  function shareNative() {
-    if (!navigator.share) return;
-    navigator.share({ title: "타임코인 모의투자", text: getShareText(), url: getShareUrl() }).catch(function () { });
-  }
-
-  function loadKakaoSdk(cb) {
-    if (window.Kakao) { cb(); return; }
-    var s = document.createElement("script");
-    s.src = "https://developers.kakao.com/sdk/js/kakao.js";
-    s.onload = cb;
-    s.onerror = function () { showToast("카카오 SDK를 불러오지 못했어요."); };
-    document.head.appendChild(s);
-  }
-
-  function shareKakao() {
-    if (!KAKAO_JS_KEY) {
-      if (navigator.share) { shareNative(); }
-      else { copyLink("링크가 복사됐어요! 카카오톡 채팅방에 붙여넣어보세요."); }
-      return;
+  function shareResult() {
+    if (navigator.share) {
+      navigator.share({ title: "타임코인 모의투자", text: getShareText(), url: getShareUrl() }).catch(function () { });
+    } else {
+      copyLink("링크가 복사됐어요! 친구에게 공유해보세요.");
     }
-    loadKakaoSdk(function () {
-      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
-      window.Kakao.Share.sendDefault({
-        objectType: "text",
-        text: getShareText(),
-        link: { mobileWebUrl: getShareUrl(), webUrl: getShareUrl() }
-      });
-    });
   }
 
-  function shareTwitter() {
-    var url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(getShareText()) + "&url=" + encodeURIComponent(getShareUrl());
-    window.open(url, "_blank", "noopener,width=560,height=520");
-  }
-  function shareFacebook() {
-    var url = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(getShareUrl());
-    window.open(url, "_blank", "noopener,width=560,height=520");
-  }
-
-  document.getElementById("btn-share-kakao").addEventListener("click", shareKakao);
-  document.getElementById("btn-share-twitter").addEventListener("click", shareTwitter);
-  document.getElementById("btn-share-facebook").addEventListener("click", shareFacebook);
-  document.getElementById("btn-share-copy").addEventListener("click", function () { copyLink(); });
-
-  var nativeShareBtn = document.getElementById("btn-share-native");
-  if (navigator.share) { nativeShareBtn.addEventListener("click", shareNative); }
-  else { nativeShareBtn.style.display = "none"; }
+  document.getElementById("btn-share-native").addEventListener("click", shareResult);
 })();
 </script>
 </body>
