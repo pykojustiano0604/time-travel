@@ -1,0 +1,23 @@
+{
+  "name": "time-travel",
+  "version": "1.0.0",
+  "description": "시간순삭 - 기다리는 시간을 즐겁게 보내는 심심풀이 콘텐츠 모음",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pykojustiano0604/time-travel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pykojustiano0604/time-travel/issues"
+  },
+  "homepage": "https://github.com/pykojustiano0604/time-travel#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
