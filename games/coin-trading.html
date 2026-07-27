@@ -230,6 +230,66 @@
 
   .foot-note { text-align: center; font-size: 0.78rem; color: var(--text-light); }
   .foot-note a { color: var(--secondary); text-decoration: none; }
+
+  .btn-outline {
+    display: inline-block;
+    background: none;
+    color: var(--primary-dark);
+    font-weight: 800;
+    padding: 11px 26px;
+    border-radius: 999px;
+    border: 2px solid var(--primary);
+    cursor: pointer;
+    font-size: 0.92rem;
+    touch-action: manipulation;
+  }
+  .btn-outline:active { background: #fff1e8; }
+
+  .lb-submit-row { display: flex; gap: 8px; width: 100%; margin-top: 2px; }
+  .lb-submit-row input {
+    flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid var(--border); font-size: 0.9rem; font-family: inherit;
+  }
+  .lb-submit-btn {
+    background: var(--primary); color: #fff; font-weight: 800;
+    border: none; border-radius: 10px; padding: 10px 16px;
+    font-size: 0.88rem; cursor: pointer; touch-action: manipulation; white-space: nowrap;
+  }
+  .lb-submit-btn:active { background: var(--primary-dark); }
+  .lb-msg { font-size: 0.85rem; color: var(--text-light); font-weight: 700; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(43,35,32,0.55);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 1000;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 20px; padding: 22px 18px;
+    max-width: 380px; width: 100%; max-height: 82vh;
+    display: flex; flex-direction: column;
+  }
+  .lb-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .lb-tab {
+    flex: 1; padding: 10px 0; border-radius: 999px; border: 1px solid var(--border);
+    background: #fff; color: var(--text-light); font-weight: 800; font-size: 0.85rem;
+    cursor: pointer; touch-action: manipulation;
+  }
+  .lb-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .lb-list { overflow-y: auto; flex: 1; margin-bottom: 14px; min-height: 120px; }
+  .lb-row {
+    display: flex; align-items: center; gap: 8px; padding: 9px 6px;
+    border-bottom: 1px solid var(--border); font-size: 0.88rem;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-rank { width: 24px; font-weight: 800; color: var(--primary-dark); text-align: center; flex-shrink: 0; }
+  .lb-name { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-score { font-weight: 800; flex-shrink: 0; }
+  .lb-pct { width: 62px; text-align: right; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+  .lb-pct.up { color: var(--up); }
+  .lb-pct.down { color: var(--down); }
+  .lb-empty, .lb-loading, .lb-error { text-align: center; color: var(--text-light); font-size: 0.88rem; padding: 24px 0; }
+  .modal-box .btn { width: 100%; }
 </style>
 </head>
 <body>
@@ -249,6 +309,7 @@
       <h1>타임코인 (TIMC) 모의투자</h1>
       <p>100만원으로 시작해서<br>롱(상승 베팅) 또는 숏(하락 베팅)으로 승부하세요.<br>레버리지 1~10배도 자유롭게 켜고 끌 수 있어요.<br>단, 손실이 100%를 넘으면 강제청산되니 주의!</p>
       <button class="btn" id="btn-start">100만원으로 시작하기</button>
+      <button class="btn-outline" id="btn-open-leaderboard">🏆 리더보드 보기</button>
     </div>
 
     <div id="screen-play" class="screen">
@@ -299,6 +360,13 @@
       <div id="result-pct">0.00%</div>
       <div id="result-detail"></div>
       <div id="result-peak"></div>
+
+      <div class="lb-submit-row" id="lb-submit-row">
+        <input type="text" id="lb-name-input" maxlength="8" placeholder="이름 (최대 8자)">
+        <button class="lb-submit-btn" id="lb-submit-btn">🏆 등록</button>
+      </div>
+      <div class="lb-msg" id="lb-msg"></div>
+
       <button class="btn" id="btn-restart">다시 하기</button>
 
       <div class="share-section">
@@ -318,12 +386,68 @@
 
 <div class="share-toast" id="share-toast"></div>
 
+<div class="modal-overlay" id="lb-modal">
+  <div class="modal-box">
+    <div class="lb-tabs">
+      <button class="lb-tab active" data-scope="daily">오늘의 리더보드</button>
+      <button class="lb-tab" data-scope="alltime">역대 리더보드</button>
+    </div>
+    <div class="lb-list" id="lb-list"></div>
+    <button class="btn" id="lb-modal-close">닫기</button>
+  </div>
+</div>
+
 <script>
 (function () {
   var START_CASH = 1000000;
   var CANDLE_SECONDS = 10;
   var TICK_MS = 200;
   var VISIBLE_CANDLES = 20;
+
+  /* ===================== 리더보드(Firebase) 설정 =====================
+     아래 FIREBASE_CONFIG를 채우면 "오늘의 리더보드"/"역대 리더보드" 기능이 켜집니다.
+     비워두면(null) 리더보드 버튼을 눌렀을 때 "준비 중" 안내만 뜨고 게임 자체는 정상 동작합니다.
+
+     1) https://console.firebase.google.com 에서 무료 프로젝트를 만듭니다.
+     2) 왼쪽 메뉴 Build > Firestore Database > "데이터베이스 만들기"로 활성화합니다
+        (위치는 asia-northeast3 등 원하는 리전, 모드는 "테스트 모드"로 시작해도 됩니다).
+     3) 프로젝트 설정(톱니바퀴) > 일반 탭 > 하단 "내 앱"에서 웹 앱(</>) 추가 후
+        나오는 firebaseConfig 객체를 아래 FIREBASE_CONFIG 자리에 그대로 붙여넣습니다.
+     4) Firestore의 "규칙(Rules)" 탭에서 아래 규칙을 붙여넣고 게시합니다:
+
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /coinTrading_daily/{date}/entries/{entryId} {
+              allow read: if true;
+              allow create: if request.resource.data.name is string
+                            && request.resource.data.name.size() <= 8
+                            && request.resource.data.score is number;
+              allow update, delete: if false;
+            }
+            match /coinTrading_alltime/{entryId} {
+              allow read: if true;
+              allow create: if request.resource.data.name is string
+                            && request.resource.data.name.size() <= 8
+                            && request.resource.data.score is number;
+              allow update, delete: if false;
+            }
+          }
+        }
+
+     참고: 로그인 시스템이 없는 완전 공개 리더보드라, 마음만 먹으면 API를 직접 호출해
+     점수를 조작하는 것도 이론적으로 가능합니다. 친목/재미용 리더보드로만 활용해주세요.
+
+     var FIREBASE_CONFIG = {
+       apiKey: "AIza...",
+       authDomain: "xxxx.firebaseapp.com",
+       projectId: "xxxx",
+       storageBucket: "xxxx.appspot.com",
+       messagingSenderId: "...",
+       appId: "..."
+     };
+  */
+  var FIREBASE_CONFIG = null;
 
   var screens = {
     start: document.getElementById("screen-start"),
@@ -345,6 +469,15 @@
   var shortSellBtn = document.getElementById("btn-short-sell");
   var levBtns = Array.prototype.slice.call(document.querySelectorAll(".lev-btn"));
   var logBox = document.getElementById("log-box");
+  var openLeaderboardBtn = document.getElementById("btn-open-leaderboard");
+  var lbModal = document.getElementById("lb-modal");
+  var lbModalClose = document.getElementById("lb-modal-close");
+  var lbTabs = Array.prototype.slice.call(document.querySelectorAll(".lb-tab"));
+  var lbList = document.getElementById("lb-list");
+  var lbSubmitRow = document.getElementById("lb-submit-row");
+  var lbNameInput = document.getElementById("lb-name-input");
+  var lbSubmitBtn = document.getElementById("lb-submit-btn");
+  var lbMsg = document.getElementById("lb-msg");
 
   var price = 50000;
   var prevClose = 50000;
@@ -600,6 +733,12 @@
     lastResultTotal = total;
     lastResultPct = pct;
 
+    lbSubmitted = false;
+    lbSubmitRow.style.display = "flex";
+    lbSubmitBtn.disabled = false;
+    lbMsg.textContent = "";
+    try { lbNameInput.value = localStorage.getItem("coinTrading_playerName") || ""; } catch (e) { lbNameInput.value = ""; }
+
     showScreen("result");
   }
 
@@ -623,6 +762,155 @@
 
   var lastResultTotal = START_CASH;
   var lastResultPct = 0;
+
+  /* ===================== 리더보드 ===================== */
+  var firestoreDb = null;
+  var firebaseLoadCallbacks = null;
+  var lbCurrentScope = "daily";
+  var lbSubmitted = false;
+
+  function escapeHtml(s) {
+    var div = document.createElement("div");
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function getTodayStr() {
+    var d = new Date();
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    var dd = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + mm + "-" + dd;
+  }
+
+  function loadFirebase(cb) {
+    if (!FIREBASE_CONFIG) { cb(new Error("not-configured")); return; }
+    if (firestoreDb) { cb(null); return; }
+    if (firebaseLoadCallbacks) { firebaseLoadCallbacks.push(cb); return; }
+    firebaseLoadCallbacks = [cb];
+
+    function fail() {
+      var cbs = firebaseLoadCallbacks;
+      firebaseLoadCallbacks = null;
+      cbs.forEach(function (f) { f(new Error("load-failed")); });
+    }
+
+    var s1 = document.createElement("script");
+    s1.src = "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js";
+    s1.onload = function () {
+      var s2 = document.createElement("script");
+      s2.src = "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js";
+      s2.onload = function () {
+        try {
+          firebase.initializeApp(FIREBASE_CONFIG);
+          firestoreDb = firebase.firestore();
+          var cbs = firebaseLoadCallbacks;
+          firebaseLoadCallbacks = null;
+          cbs.forEach(function (f) { f(null); });
+        } catch (e) { fail(); }
+      };
+      s2.onerror = fail;
+      document.head.appendChild(s2);
+    };
+    s1.onerror = fail;
+    document.head.appendChild(s1);
+  }
+
+  function fetchLeaderboard(scope, cb) {
+    loadFirebase(function (err) {
+      if (err) { cb(err); return; }
+      var query = scope === "daily"
+        ? firestoreDb.collection("coinTrading_daily").doc(getTodayStr()).collection("entries").orderBy("score", "desc").limit(10)
+        : firestoreDb.collection("coinTrading_alltime").orderBy("score", "desc").limit(10);
+      query.get().then(function (snap) {
+        var rows = [];
+        snap.forEach(function (doc) { rows.push(doc.data()); });
+        cb(null, rows);
+      }).catch(function (e) { cb(e); });
+    });
+  }
+
+  function submitScore(name, score, pct, cb) {
+    loadFirebase(function (err) {
+      if (err) { cb(err); return; }
+      var today = getTodayStr();
+      var payload = { name: name, score: score, pct: pct, ts: firebase.firestore.FieldValue.serverTimestamp() };
+      var p1 = firestoreDb.collection("coinTrading_daily").doc(today).collection("entries").add(payload);
+      var p2 = firestoreDb.collection("coinTrading_alltime").add(Object.assign({ date: today }, payload));
+      Promise.all([p1, p2]).then(function () { cb(null); }).catch(function (e) { cb(e); });
+    });
+  }
+
+  function renderLeaderboardRows(rows) {
+    if (!rows.length) return '<div class="lb-empty">아직 등록된 기록이 없어요.<br>첫 번째 주인공이 되어보세요!</div>';
+    return rows.map(function (r, i) {
+      var pct = typeof r.pct === "number" ? r.pct : 0;
+      var pctText = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+      var cls = pct >= 0 ? "up" : "down";
+      return '<div class="lb-row">' +
+        '<span class="lb-rank">' + (i + 1) + '</span>' +
+        '<span class="lb-name">' + escapeHtml(r.name || "익명") + '</span>' +
+        '<span class="lb-score">' + formatWon(r.score || 0) + '</span>' +
+        '<span class="lb-pct ' + cls + '">' + pctText + '</span>' +
+        '</div>';
+    }).join("");
+  }
+
+  function loadLeaderboardTab(scope) {
+    lbCurrentScope = scope;
+    lbTabs.forEach(function (t) { t.classList.toggle("active", t.dataset.scope === scope); });
+    lbList.innerHTML = '<div class="lb-loading">불러오는 중...</div>';
+    fetchLeaderboard(scope, function (err, rows) {
+      if (lbCurrentScope !== scope) return;
+      if (err) {
+        lbList.innerHTML = '<div class="lb-error">리더보드를 불러오지 못했어요.</div>';
+        return;
+      }
+      lbList.innerHTML = renderLeaderboardRows(rows);
+    });
+  }
+
+  function openLeaderboard(scope) {
+    if (!FIREBASE_CONFIG) {
+      showToast("리더보드 기능은 준비 중이에요!");
+      return;
+    }
+    lbModal.classList.add("show");
+    loadLeaderboardTab(scope || "daily");
+  }
+
+  function closeLeaderboard() {
+    lbModal.classList.remove("show");
+  }
+
+  openLeaderboardBtn.addEventListener("click", function () { openLeaderboard("daily"); });
+  lbModalClose.addEventListener("click", closeLeaderboard);
+  lbModal.addEventListener("click", function (e) { if (e.target === lbModal) closeLeaderboard(); });
+  lbTabs.forEach(function (t) {
+    t.addEventListener("click", function () { loadLeaderboardTab(t.dataset.scope); });
+  });
+
+  lbSubmitBtn.addEventListener("click", function () {
+    if (lbSubmitted) return;
+    if (!FIREBASE_CONFIG) {
+      showToast("리더보드 기능은 준비 중이에요!");
+      return;
+    }
+    var name = lbNameInput.value.trim().slice(0, 8) || "익명";
+    lbSubmitBtn.disabled = true;
+    lbMsg.textContent = "등록하는 중...";
+    submitScore(name, lastResultTotal, lastResultPct, function (err) {
+      if (err) {
+        lbMsg.textContent = "등록에 실패했어요. 잠시 후 다시 시도해주세요.";
+        lbSubmitBtn.disabled = false;
+        return;
+      }
+      try { localStorage.setItem("coinTrading_playerName", name); } catch (e) { /* 저장 실패는 무시 */ }
+      lbSubmitted = true;
+      lbSubmitRow.style.display = "none";
+      lbMsg.textContent = "✅ \"" + name + "\"(으)로 리더보드에 등록했어요!";
+      openLeaderboard("daily");
+    });
+  });
 
   /* ===================== 공유 기능 ===================== */
   var shareToast = document.getElementById("share-toast");
